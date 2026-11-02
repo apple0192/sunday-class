@@ -756,6 +756,20 @@
     .at-grow { grid-column: 1 / -1; order: 3; }
   }
   @media (prefers-reduced-motion: reduce) { .at-leaf.grow, .at-n.pop b { animation: none; } }
+
+  /* ----- 출석: 저장 상태 표시와 "출석 처음부터" ----- */
+  .attend [hidden] { display: none !important; }
+  .at-sync { width: fit-content; margin: 0 0 10px; padding: 4px 14px; border-radius: 999px; background: #EDEDED; color: var(--ink-soft); font-size: clamp(14px, 1.8vw, 18px); font-weight: 700; }
+  .at-sync::before { content: "● "; color: #E0A030; }
+  .at-reset { display: block; width: 100%; min-height: 76px; margin-top: 14px; font: inherit; font-size: clamp(24px, 3.2vw, 34px); font-weight: 800; color: var(--ink); background: transparent; border: 3px solid rgba(44, 62, 80, 0.35); border-radius: 22px; cursor: pointer; touch-action: manipulation; }
+  .at-reset:active { background: #F6E2B0; }
+  .at-confirm { margin-top: 14px; padding: 18px 22px; border-radius: 24px; background: #FDE0DE; border: 3px solid #E0524D; text-align: center; }
+  .at-confirm-q { margin: 0 0 12px; font-size: clamp(24px, 3.2vw, 34px); font-weight: 900; word-break: keep-all; }
+  .at-confirm-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+  .at-yes, .at-no { min-height: 84px; padding: 0 36px; font: inherit; font-size: clamp(24px, 3.2vw, 34px); font-weight: 900; border: 3px solid; border-radius: 22px; cursor: pointer; touch-action: manipulation; }
+  .at-yes { background: #E0524D; border-color: #E0524D; color: #FFFFFF; }
+  .at-no { background: #FFFFFF; border-color: var(--ink); color: var(--ink); }
+  .at-reset:focus-visible, .at-yes:focus-visible, .at-no:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -1630,29 +1644,54 @@
   }
   // <emoji-end>
 
+  // 기기에 저장할 때 쓰는 키 이름 (바꾸지 않음)
   var ATTEND_KEY = "sunshine-class-attendance-v1";
+
+  // Supabase 연결. 여기에는 "공개 키"만 있습니다. 비밀 키는 이 파일에 절대 넣지 않습니다.
+  var SB_URL = "https://zodfzeeiqpeokmqdgqrf.supabase.co";
+  var SB_KEY = "sb_publishable_jZOQmQnckMbKwpvxJZigiw_y3G6qn9h";
+  var SB_TIMEOUT_MS = 8000;        // 이 시간 안에 답이 없으면 "연결 안 됨"으로 보고 기기에만 저장
+  var SB_RETRY_MS = 15000;         // 연결이 안 되는 동안 이 간격으로 다시 시도
+
   var ATTEND_HTML =
     '<section class="at">' +
+      '<p class="at-sync" role="status" hidden>기기에만 저장 중</p>' +
       '<div class="at-top">' +
         '<div class="at-box at-totalbox"><span class="at-lab">우리 반 누적 출석</span><span class="at-big"><b class="at-sum">0</b>번</span></div>' +
         '<div class="at-box at-bestbox"><span class="at-lab">가장 많이 온 친구</span><span class="at-big at-best">아직 없어요</span></div>' +
       '</div>' +
       '<ul class="at-list"></ul>' +
       '<button type="button" class="at-all">오늘 모두 ＋1</button>' +
+      '<button type="button" class="at-reset">출석 처음부터</button>' +
+      '<div class="at-confirm" role="alertdialog" aria-label="출석 처음부터 확인" hidden>' +
+        '<p class="at-confirm-q">모든 친구의 온 횟수를 0으로 되돌릴까요?</p>' +
+        '<div class="at-confirm-btns"><button type="button" class="at-yes">네, 처음부터</button><button type="button" class="at-no">아니요</button></div>' +
+      '</div>' +
     '</section>';
 
   function initAttend(root) {
     var $ = function (sel) { return root.querySelector(sel); };
-    var listEl = $(".at-list"), sumEl = $(".at-sum"), bestEl = $(".at-best"), allBtn = $(".at-all");
-    var emojis = assignEmoji(ROSTER), counts = {}, rows = [], MAX_LEAVES = 40, lockUntil = 0;
+    var listEl = $(".at-list"), sumEl = $(".at-sum"), bestEl = $(".at-best"), allBtn = $(".at-all"), syncEl = $(".at-sync"),
+        resetBtn = $(".at-reset"), confirmEl = $(".at-confirm"), yesBtn = $(".at-yes"), noBtn = $(".at-no");
+    var emojis = assignEmoji(ROSTER), counts = {}, dirty = {}, rows = [], MAX_LEAVES = 40, lockUntil = 0;
+    var netBad = false, flushing = false, flushAgain = false, loading = false;
 
-    function load() {                                         // 저장된 횟수 (없거나 읽을 수 없으면 0부터)
-      var saved = {};
-      try { saved = (JSON.parse(window.localStorage.getItem(ATTEND_KEY) || "{}") || {}).counts || {}; } catch (e) {}
+    // ---------- 기기에 저장 (인터넷이 없어도 항상 됨) ----------
+    // dirty = 아직 Supabase에 못 올린 이름들. 새로 고쳐도 남도록 같은 키(ATTEND_KEY)에 함께 저장합니다.
+    function load() {
+      var saved = {}, pend = [];
+      try {
+        var o = JSON.parse(window.localStorage.getItem(ATTEND_KEY) || "{}") || {};
+        saved = o.counts || {}; pend = Array.isArray(o.pending) ? o.pending : [];
+      } catch (e) {}
       ROSTER.forEach(function (n) { var v = Math.floor(Number(saved[n])); counts[n] = v > 0 && v < 100000 ? v : 0; });
+      pend.forEach(function (n) { if (counts.hasOwnProperty(n)) dirty[n] = true; });
     }
-    function save() { try { window.localStorage.setItem(ATTEND_KEY, JSON.stringify({ v: 1, counts: counts })); } catch (e) {} }
+    function save() {
+      try { window.localStorage.setItem(ATTEND_KEY, JSON.stringify({ v: 1, counts: counts, pending: ROSTER.filter(function (n) { return dirty[n]; }) })); } catch (e) {}
+    }
 
+    // ---------- 화면 ----------
     function leavesHtml(n, grownFrom) {
       if (n === 0) return '<span class="at-empty">🌱 아직 잎이 없어요</span>';
       var h = "", shown = Math.min(n, MAX_LEAVES);
@@ -1674,14 +1713,78 @@
       sumEl.textContent = sum;
       bestEl.textContent = max > 0 ? who.join(" · ") + " (" + max + "번)" : "아직 없어요";
     }
-    function pop(i) {
-      var box = rows[i].numBox; box.classList.remove("pop"); void box.offsetWidth; box.classList.add("pop");
+    function repaintAll() { ROSTER.forEach(function (n, i) { paintRow(i); }); paintTop(); }
+    function pop(i) { var box = rows[i].numBox; box.classList.remove("pop"); void box.offsetWidth; box.classList.add("pop"); }
+    function paintSync() { syncEl.hidden = !netBad; }           // 연결이 안 될 때만 작게 "기기에만 저장 중"
+
+    // ---------- Supabase와 주고받기 (브라우저 fetch로 직접) ----------
+    function request(path, method, body, prefer) {
+      if (typeof window.fetch !== "function") return Promise.reject(new Error("fetch 없음"));
+      var ctl = window.AbortController ? new window.AbortController() : null, timer = setTimeout(function () { if (ctl) ctl.abort(); }, SB_TIMEOUT_MS);
+      var headers = { "apikey": SB_KEY, "Content-Type": "application/json" };
+      if (prefer) headers["Prefer"] = prefer;
+      var done = Promise.race([
+        window.fetch(SB_URL + "/rest/v1/attendance" + path, { method: method, headers: headers, body: body ? JSON.stringify(body) : undefined, signal: ctl ? ctl.signal : undefined, cache: "no-store" }),
+        new Promise(function (_, reject) { setTimeout(function () { reject(new Error("시간 초과")); }, SB_TIMEOUT_MS + 500); })
+      ]);
+      return done.then(function (res) {
+        clearTimeout(timer);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.text().then(function (t) { return t ? JSON.parse(t) : null; });
+      }, function (err) { clearTimeout(timer); throw err; });
     }
+    function netOk() { netBad = false; paintSync(); }
+    function netFail() { netBad = true; paintSync(); }
+
+    // 못 올린 이름들의 "현재 횟수"를 한 번에 올림 (없는 줄은 새로 만들고, 있으면 고침)
+    function flush() {
+      var names = ROSTER.filter(function (n) { return dirty[n]; });
+      if (!names.length) return;
+      if (flushing) { flushAgain = true; return; }
+      flushing = true;
+      var sent = {}, body = names.map(function (n) { sent[n] = counts[n]; return { nickname: n, visits: counts[n] }; });
+      request("?on_conflict=nickname", "POST", body, "resolution=merge-duplicates,return=minimal")
+        .then(function () {
+          names.forEach(function (n) { if (counts[n] === sent[n]) delete dirty[n]; });   // 보내는 사이 또 바뀐 이름은 다시 올림
+          save(); netOk();
+        })
+        .catch(netFail)
+        .then(function () { flushing = false; if (flushAgain) { flushAgain = false; flush(); } });
+    }
+
+    // 표에서 불러오기: 표에 없는 명단 이름은 0으로 새로 넣고, 못 올린 기기의 값은 지키고, 나머지는 표의 값을 보여 줌
+    function refresh() {
+      if (loading) return;
+      loading = true;
+      request("?select=nickname,visits", "GET").then(function (found) {
+        var remote = {};
+        (found || []).forEach(function (r) { remote[r.nickname] = r.visits; });
+        var missing = ROSTER.filter(function (n) { return !Object.prototype.hasOwnProperty.call(remote, n); });
+        var added = missing.length
+          ? request("?on_conflict=nickname", "POST", missing.map(function (n) { return { nickname: n, visits: 0 }; }), "resolution=ignore-duplicates,return=minimal")
+          : Promise.resolve();
+        return added.then(function () {
+          ROSTER.forEach(function (n) {
+            if (dirty[n]) return;                                       // 아직 못 올린 기기의 값이 먼저
+            if (Object.prototype.hasOwnProperty.call(remote, n)) { var v = Math.floor(Number(remote[n])); counts[n] = v > 0 && v < 100000 ? v : 0; }
+            else if (counts[n] > 0) dirty[n] = true;                    // 새 줄은 0으로 넣었지만, 기기에 쌓아 둔 횟수가 있으면 잃지 않게 올림
+          });
+          save(); repaintAll(); netOk(); flush();
+        });
+      }).catch(netFail).then(function () { loading = false; });
+    }
+
+    // ---------- 누를 때마다: 화면 → 기기 → Supabase ----------
     function change(i, d) {
       var name = ROSTER[i], before = counts[name], now = Math.max(0, before + d);
       if (now === before) return;
-      counts[name] = now; save();
+      counts[name] = now; dirty[name] = true; save();
       paintRow(i, d > 0 ? before : undefined); paintTop(); pop(i);
+      flush();
+    }
+    function restart() {
+      ROSTER.forEach(function (n, i) { counts[n] = 0; dirty[n] = true; paintRow(i); });
+      save(); paintTop(); flush();
     }
 
     load();
@@ -1702,14 +1805,23 @@
     });
     paintTop();
 
-    allBtn.addEventListener("click", function () {              // 오늘 모두 ＋1 (실수로 두 번 눌려도 한 번만)
+    allBtn.addEventListener("click", function () {                      // 오늘 모두 ＋1 (실수로 두 번 눌려도 한 번만)
       var now = Date.now();
       if (now < lockUntil) return;
       lockUntil = now + 700;
-      ROSTER.forEach(function (n, i) { var before = counts[n]; counts[n] = before + 1; paintRow(i, before); pop(i); });
-      save(); paintTop();
+      ROSTER.forEach(function (n, i) { var before = counts[n]; counts[n] = before + 1; dirty[n] = true; paintRow(i, before); pop(i); });
+      save(); paintTop(); flush();
       root.setAttribute("data-fx", "all"); burst("correct", allBtn);
     });
+    resetBtn.addEventListener("click", function () { confirmEl.hidden = false; resetBtn.hidden = true; });   // 실수로 지우지 않게 한 번 더 물어봄
+    noBtn.addEventListener("click", function () { confirmEl.hidden = true; resetBtn.hidden = false; });
+    yesBtn.addEventListener("click", function () { confirmEl.hidden = true; resetBtn.hidden = false; restart(); });
+
+    // 연결이 안 되는 동안은 가끔 다시 시도, 인터넷이 돌아오거나 이 탭을 다시 열면 바로 시도
+    setInterval(function () { if (netBad || Object.keys(dirty).length) refresh(); }, SB_RETRY_MS);
+    window.addEventListener("online", refresh);
+    if (window.MutationObserver) new MutationObserver(function () { if (!root.hidden) refresh(); }).observe(root, { attributes: true, attributeFilter: ["hidden"] });
+    refresh();                                                          // 페이지를 열면 Supabase에서 불러옴
   }
 
   var tablist = document.getElementById("tabs");
