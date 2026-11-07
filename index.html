@@ -873,6 +873,36 @@
   .tl-sync, .mg-sync { width: fit-content; margin: 0 0 10px; padding: 4px 14px; border-radius: 999px; background: #EDEDED; color: var(--ink-soft); font-size: clamp(14px, 1.8vw, 18px); font-weight: 700; }
   .tl-sync::before, .mg-sync::before { content: "● "; color: #E0A030; }
   .manage [hidden] { display: none !important; }
+
+  /* ----- 반 관리: 생일 (월·일) ----- */
+  .mg-row { flex-wrap: wrap; }
+  .mg-bhelp { margin: -8px 0 16px; font-size: clamp(16px, 2.1vw, 22px); }
+  .mg-bday { flex: 1 0 100%; display: flex; align-items: center; gap: 12px; padding-left: calc(clamp(40px, 5.4vw, 70px) + 14px); }
+  .mg-bicon { flex: none; font-size: clamp(30px, 4vw, 46px); line-height: 1; }
+  .mg-bm, .mg-bd { flex: none; min-height: 72px; padding: 0 14px; box-sizing: border-box; font: inherit; font-size: clamp(24px, 3.2vw, 34px); font-weight: 800; color: var(--ink); background: #FFFFFF; border: 3px solid rgba(44, 62, 80, 0.35); border-radius: 18px; cursor: pointer; touch-action: manipulation; }
+  .mg-bm { min-width: clamp(116px, 19vw, 168px); }
+  .mg-bd { min-width: clamp(106px, 17vw, 150px); }
+  .mg-bm.unset, .mg-bd.unset { color: var(--ink-soft); font-weight: 700; }
+  .mg-bm:focus, .mg-bd:focus { outline: 3px solid var(--sun); border-color: var(--ink); }
+  @media (max-width: 560px) { .mg-bday { padding-left: 0; } }
+
+  /* ----- 생일 축하 칸 (제목 아래, 탭 위) ----- */
+  .bday { margin: 18px 0 4px; padding: clamp(16px, 3vw, 32px); border-radius: 30px; background: linear-gradient(135deg, #FFE6D2 0%, #FFD9DF 100%); border: 4px solid #F6B89E; box-shadow: 0 6px 0 rgba(231, 130, 120, 0.25); color: #4A2733; text-align: center; }
+  .bday[hidden] { display: none; }
+  .bday-top { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2vw, 22px); margin-bottom: clamp(8px, 1.6vw, 16px); }
+  .bday-cake { font-size: clamp(60px, 10vw, 120px); line-height: 1; }
+  .bday-badge { padding: 4px clamp(18px, 3vw, 32px); border-radius: 999px; background: #C9355F; color: #FFFFFF; font-size: clamp(24px, 3.8vw, 40px); font-weight: 900; letter-spacing: -0.01em; }
+  .bday-friend { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: clamp(14px, 3vw, 32px); margin: clamp(8px, 1.6vw, 16px) auto 0; max-width: 1000px; text-align: left; }
+  .bday-friend + .bday-friend { padding-top: clamp(10px, 2vw, 20px); border-top: 3px dashed rgba(201, 53, 95, 0.3); }
+  .bday-pic { font-size: clamp(76px, 13vw, 160px); line-height: 1; }
+  .bday-hello { margin: 0; font-size: clamp(34px, 6.6vw, 80px); font-weight: 900; line-height: 1.2; color: #7A1F3D; letter-spacing: -0.02em; word-break: keep-all; }
+  .bday-warm { margin: 8px 0 0; font-size: clamp(20px, 3.1vw, 32px); font-weight: 700; line-height: 1.5; color: #4A2733; word-break: keep-all; }
+  .bday-cheer { display: block; margin: clamp(16px, 2.4vw, 24px) auto 0; min-width: min(100%, 440px); min-height: 88px; padding: 0 36px; font: inherit; font-size: clamp(28px, 4.4vw, 44px); font-weight: 900; color: #FFFFFF; background: #C9355F; border: 4px solid #C9355F; border-radius: 28px; box-shadow: 0 6px 0 #9E2849; cursor: pointer; touch-action: manipulation; }
+  .bday-cheer:active { transform: translateY(4px); box-shadow: 0 2px 0 #9E2849; }
+  .bday-cheer:focus-visible { outline: 4px solid var(--sun); outline-offset: 4px; }
+  .bday-week { margin: clamp(12px, 2vw, 18px) 0 0; font-size: clamp(16px, 2.2vw, 22px); font-weight: 700; line-height: 1.5; color: #6B3A4A; word-break: keep-all; }
+  .bday-week.only { margin-top: 0; font-size: clamp(18px, 2.6vw, 26px); }
+  @media (max-width: 560px) { .bday-friend { grid-template-columns: 1fr; justify-items: center; text-align: center; } }
 </style>
 </head>
 <body>
@@ -884,6 +914,8 @@
     <p class="today-en" id="today-en" lang="en"></p>
     <button type="button" id="fs" hidden><span>전체화면</span><span class="fs-en" lang="en">Full screen</span></button>
   </header>
+
+  <section id="bday-banner" class="bday" role="region" aria-label="생일 축하" hidden></section>
 
   <nav aria-label="수업 도구 메뉴">
     <div role="tablist" id="tabs"></div>
@@ -1752,7 +1784,7 @@
   var DEFAULT_CLASS = "초등 3부 햇살반", ROSTER_MAX = 30, NAME_MAX = 12, CLASS_MAX = 20;
   var rosterTabs = [];            // 명단을 쓰는 탭(출석, 달란트)이 여기에 등록합니다. 명단이 바뀌면 등록된 탭이 모두 함께 바뀝니다.
   // 서버(Supabase)에 아직 못 올린 일(ops)과 상태. 명단·반 이름을 기기에 저장할 때 같은 키 안에 함께 적어 둡니다.
-  var rosterState = { ops: [], synced: false, classPending: false, classSynced: false, bad: false, running: false, again: false, loading: false, lastPull: 0, paint: null, classTimer: 0 };
+  var rosterState = { ops: [], synced: false, classPending: false, classSynced: false, bad: false, running: false, again: false, loading: false, lastPull: 0, paint: null, classTimer: 0, noBirthday: false };
   function cleanName(t) { return String(t == null ? "" : t).replace(/\s+/g, " ").replace(/^ | $/g, ""); }
   function sameName(a, b) { return cleanName(a).toLowerCase() === cleanName(b).toLowerCase(); }
   function saveRoster() { try { window.localStorage.setItem(ROSTER_KEY, JSON.stringify({ v: 1, names: ROSTER.slice(), ops: rosterState.ops, synced: rosterState.synced })); } catch (e) {} }
@@ -1933,9 +1965,9 @@
   function paintRosterSync() { if (rosterState.paint) rosterState.paint(); }
   function rosterFlush() {
     if (rosterState.running) { rosterState.again = true; return Promise.resolve(); }
-    if (!rosterState.ops.length && !rosterState.classPending) return Promise.resolve();
+    if (!rosterState.ops.length && !rosterState.classPending && !bdayPendingCount()) return Promise.resolve();
     rosterState.running = true;
-    return runAllOps().then(classFlush)
+    return runAllOps().then(classFlush).then(bdayFlush)
       .then(function () { rosterState.bad = false; paintRosterSync(); })
       .catch(function () { rosterState.bad = true; paintRosterSync(); })
       .then(function () { rosterState.running = false; if (rosterState.again) { rosterState.again = false; return rosterFlush(); } });
@@ -1981,18 +2013,26 @@
     saveRoster(); rosterWatchers.forEach(function (f) { f(); });
     return true;
   }
+  function rosterGet() {                                                        // 명단을 받아올 때 생일 칸(birthday)도 함께. 서버에 그 칸이 없다고 하면 생일만 빼고 명단은 그대로 불러옴
+    var cols = rosterState.noBirthday ? "nickname,sort_order" : "nickname,sort_order,birthday";
+    return sbRest("roster?select=" + cols + "&order=sort_order.asc,nickname.asc", "GET").catch(function (e) {
+      if (e.status === 400 && !rosterState.noBirthday) { rosterState.noBirthday = true; return rosterGet(); }
+      throw e;
+    });
+  }
   function rosterRefresh(force) {
     if (rosterState.loading) return Promise.resolve();
     if (!force && Date.now() - rosterState.lastPull < 2000) return Promise.resolve();
     rosterState.loading = true; rosterState.lastPull = Date.now();
     return Promise.all([
-      sbRest("roster?select=nickname,sort_order&order=sort_order.asc,nickname.asc", "GET"),
+      rosterGet(),
       sbRest("class_info?select=class_name", "GET")
     ]).then(function (res) {
       var remote = validNames(res[0]);
       if (!remote.length && !rosterState.synced && !rosterState.ops.length && ROSTER.length) rosterState.ops.push({ k: "set", names: ROSTER.slice(), d: 0 });   // 서버 명단이 비어 있고 이 기기가 처음 연결: 이 기기의 명단을 올림
       applyRoster(rosterState.ops.length ? applyOpsTo(remote, rosterState.ops) : remote);
       rosterState.synced = true; saveRoster();
+      if (bdayPull(res[0])) rosterWatchers.forEach(function (f) { f(); });          // 서버의 생일이 이 기기와 다르면 반 관리와 생일 축하 칸도 새로 맞춤
       var rows = res[1] || [], cn = rows.length ? cleanName(rows[0].class_name) : "";
       if (!rosterState.classPending) {
         if (cn && cn.length <= CLASS_MAX) { if (cn !== currentClassName()) { applyClassName(cn); rosterWatchers.forEach(function (f) { f(); }); } rosterState.classSynced = true; saveClassName(cn); }   // 서버의 반 이름이 다르면 반 관리의 반 이름 칸도 새로 맞춤
@@ -2005,7 +2045,7 @@
   }
   function rosterStart() {                                                        // 반 관리 탭을 만든 뒤 한 번 호출: 시작하자마자 불러오고, 연결이 안 되는 동안은 가끔 다시 시도
     rosterRefresh(true);
-    setInterval(function () { if (rosterState.bad || rosterState.ops.length || rosterState.classPending) rosterRefresh(true); }, SB_RETRY_MS);
+    setInterval(function () { if (rosterState.bad || rosterState.ops.length || rosterState.classPending || bdayPendingCount()) rosterRefresh(true); }, SB_RETRY_MS);
     window.addEventListener("online", function () { rosterRefresh(true); });
   }
   function cleanOps(arr) {                                                        // 기기에 저장된 할 일 목록이 이상해도 안전하게 읽음
@@ -2493,11 +2533,193 @@
   }
 
   // ===================== 반 관리 (명단과 반 이름. 출석·달란트와 같은 명단을 씀) =====================
+  // ----- 생일: 월·일만 (태어난 해는 받지 않음). 기기에는 새 키 하나(sunshine-class-birthday-v1)에 저장하고, 월과 일이 모두 정해지면 -----
+  // ----- Supabase 반 명단 표의 birthday 칸(예: 10-18)에도 저장해서 다른 기기에서도 보입니다. (출석·달란트·명단·반 이름의 키와 기록은 건드리지 않음) -----
+  var BDAY_KEY = "sunshine-class-birthday-v1";
+  var BDAY_DAYS = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];       // 달마다 날짜 수. 해를 받지 않으므로 2월은 29일까지
+  var bdays = {};                                                           // 이름 → { m: 월 또는 null, d: 일 또는 null }  (월만 고른 것처럼 반쯤 고른 생일은 이 기기에만 둠)
+  var bdayPending = {}, bdaySynced = false;                                 // 아직 서버에 못 올린 이름들 / 서버와 한 번이라도 맞춰 봤는지
+  function bdayMax(m) { return m ? BDAY_DAYS[m] : 31; }
+  function bdayHas(n) { return Object.prototype.hasOwnProperty.call(bdays, n); }
+  function bdayFull(b) { return !!(b && b.m && b.d); }
+  function bdayTwo(x) { return (x < 10 ? "0" : "") + x; }
+  function bdayText(n) { var b = bdayHas(n) ? bdays[n] : null; return bdayFull(b) ? bdayTwo(b.m) + "-" + bdayTwo(b.d) : null; }   // 서버에 보낼 값: "10-18" (월과 일이 모두 있을 때만, 아니면 비움)
+  function bdayKey(n) { return bdayHas(n) ? bdays[n].m + "/" + bdays[n].d : ""; }                                                     // 보내는 사이 또 바뀌었는지 비교용
+  function bdayParse(str) {                                                  // 서버에서 온 "10-18"을 읽음 (이상한 값은 없는 것으로)
+    var x = /^(\d\d)-(\d\d)$/.exec(String(str == null ? "" : str));
+    if (!x) return null;
+    var m = Number(x[1]), d = Number(x[2]);
+    return m >= 1 && m <= 12 && d >= 1 && d <= bdayMax(m) ? { m: m, d: d } : null;
+  }
+  function bdayPendingCount() { return Object.keys(bdayPending).length; }
+  function bdaySnapshot() { return JSON.stringify([bdays, Object.keys(bdayPending), bdaySynced]); }
+  function bdaySave() { try { window.localStorage.setItem(BDAY_KEY, JSON.stringify({ v: 1, days: bdays, pending: Object.keys(bdayPending), synced: bdaySynced })); } catch (e) {} }
+  function bdaySet(name, m, d) {                                            // 고르면 바로: 기기에 저장하고, 서버에도 올림 (안 되면 "못 올림"으로 기억해 두었다가 다시 올림)
+    if (!m && !d) delete bdays[name]; else bdays[name] = { m: m, d: d };
+    bdayPending[name] = true; bdaySave(); rosterKick();
+  }
+  (function bdayLoad() {                                                    // 저장된 생일을 읽음 (이상한 값과, 명단에 없는 이름은 버림)
+    var o = null, changed = false;
+    try { o = JSON.parse(window.localStorage.getItem(BDAY_KEY) || "null"); } catch (e) {}
+    if (!o || typeof o !== "object") return;
+    bdaySynced = o.synced === true;
+    if (o.days && typeof o.days === "object") Object.keys(o.days).forEach(function (n) {
+      var v = o.days[n] || {}, m = Math.floor(Number(v.m)), d = Math.floor(Number(v.d));
+      m = m >= 1 && m <= 12 ? m : null; d = d >= 1 && d <= bdayMax(m) ? d : null;
+      if (ROSTER.indexOf(n) < 0 || reservedName(n) || (!m && !d)) { changed = true; return; }
+      bdays[n] = { m: m, d: d };
+    });
+    if (Array.isArray(o.pending)) o.pending.forEach(function (n) {
+      if (typeof n === "string" && ROSTER.indexOf(n) > -1 && !reservedName(n)) bdayPending[n] = true; else changed = true;
+    });
+    if (changed) bdaySave();
+  })();
+  // 서버(반 명단 표)에서 받은 생일을 기기의 생일에 맞춤. 규칙: 못 올린 내 변경이 먼저 / 서버에 완성된 생일이 있으면 서버 것을 따름 /
+  // 처음 한 번만, 서버가 비어 있는 친구에게는 이 기기의 완성된 생일을 올림 / 그 뒤로 서버에서 지워졌으면 기기에서도 지움. 기기에서 바뀐 것이 있으면 true.
+  function bdayPull(rows) {
+    if (rosterState.noBirthday) return false;
+    var srv = {}, changed = false, before = bdaySnapshot(), shown = JSON.stringify(bdays);
+    (rows || []).forEach(function (r) { if (r && typeof r.nickname === "string") srv[r.nickname] = bdayParse(r.birthday); });
+    ROSTER.forEach(function (n) {
+      if (bdayPending[n]) return;
+      var lv = bdayHas(n) ? bdays[n] : null, full = bdayFull(lv);
+      if (!Object.prototype.hasOwnProperty.call(srv, n)) { if (!bdaySynced && full) bdayPending[n] = true; return; }   // 서버에 이 줄이 아직 없음: 처음이라면 올릴 것으로 표시
+      var sv = srv[n];
+      if (sv) { if (!lv || lv.m !== sv.m || lv.d !== sv.d) bdays[n] = { m: sv.m, d: sv.d }; }
+      else if (full) { if (!bdaySynced) bdayPending[n] = true; else delete bdays[n]; }
+    });
+    bdaySynced = true;
+    changed = JSON.stringify(bdays) !== shown;
+    if (bdaySnapshot() !== before) bdaySave();
+    return changed;
+  }
+  // 못 올린 생일을 서버 반 명단 표의 birthday 칸에 올림. (줄이 없으면 새로 만들고, 있으면 생일만 고침. 순서 번호는 지금 명단의 순서)
+  function bdayFlush() {
+    Object.keys(bdayPending).forEach(function (n) { if (ROSTER.indexOf(n) < 0) delete bdayPending[n]; });
+    var names = ROSTER.filter(function (n) { return bdayPending[n]; });
+    if (!names.length) return Promise.resolve();
+    if (rosterState.noBirthday) return Promise.reject(new Error("서버에 생일 칸이 없음"));
+    var sent = {}, body = names.map(function (n) { sent[n] = bdayKey(n); return { nickname: n, sort_order: ROSTER.indexOf(n) + 1, birthday: bdayText(n) }; });
+    return sbRest("roster?on_conflict=nickname", "POST", body, "resolution=merge-duplicates,return=minimal").then(function () {
+      names.forEach(function (n) { if (bdayKey(n) === sent[n]) delete bdayPending[n]; });         // 보내는 사이 또 바뀐 이름은 다시 올림
+      bdaySave();
+    });
+  }
+  rosterTabs.push({                                                         // 이름이 바뀌거나, 빠지거나, 학기 기록을 불러오면 생일도 함께 (다른 탭 코드는 건드리지 않고 같은 알림 장치를 씀)
+    kind: "birthday",
+    rename: function (o, n) {                                                // 서버의 같은 줄 이름은 명단이 바꾸므로 생일도 그 줄을 따라감
+      var ch = false;
+      if (bdayHas(o)) { bdays[n] = bdays[o]; delete bdays[o]; ch = true; }
+      if (bdayPending[o]) { bdayPending[n] = true; delete bdayPending[o]; ch = true; }
+      if (ch) bdaySave();
+    },
+    add: function () {},                                                     // 새 아이의 생일은 비어 있음
+    remove: function (n) {                                                   // 서버의 줄이 지워지면 생일도 함께 지워짐
+      var ch = false;
+      if (bdayHas(n)) { delete bdays[n]; ch = true; }
+      if (bdayPending[n]) { delete bdayPending[n]; ch = true; }
+      if (ch) bdaySave();
+    },
+    restore: function () {
+      var ch = false;
+      Object.keys(bdays).forEach(function (n) { if (ROSTER.indexOf(n) < 0) { delete bdays[n]; ch = true; } });
+      Object.keys(bdayPending).forEach(function (n) { if (ROSTER.indexOf(n) < 0) { delete bdayPending[n]; ch = true; } });
+      if (ch) bdaySave();
+    }
+  });
+
+  // ===================== 생일 축하 칸 (화면 맨 위, 탭 위) =====================
+  // 오늘이 생일인 친구가 있으면 크게, 이번 주(주일~토요일)에 생일인 친구는 아래에 작게. 둘 다 없으면 이 칸은 보이지 않습니다.
+  // 생일은 위의 생일 기록(bdays)을 그대로 읽기만 합니다. 오늘 날짜는 이 기기의 날짜입니다.
+  var bannerEl = document.getElementById("bday-banner"), bnSig = "", bnTimer = 0;
+  function bnEl(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function bdayDn(y, m, d) { return Math.round(Date.UTC(y, m - 1, d) / 86400000); }       // 날짜를 "며칠째"인지 숫자로 (날짜끼리 비교하기 쉽게)
+  function bdayLeap(y) { return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; }
+  // 받침에 맞는 "을/를". 숫자는 읽는 소리로 (영·일·삼·육·칠·팔은 받침이 있음). 한글이 아닌 글자로 끝나면 받침을 알 수 없어서 "을(를)"
+  var BN_DIGIT_BATCHIM = { "0": true, "1": true, "2": false, "3": true, "4": false, "5": false, "6": true, "7": true, "8": true, "9": false };
+  function eulReul(name) {
+    var ch = name.charAt(name.length - 1), c = ch.charCodeAt(0);
+    if (c >= 0xAC00 && c <= 0xD7A3) return (c - 0xAC00) % 28 === 0 ? "를" : "을";
+    if (ch >= "0" && ch <= "9") return BN_DIGIT_BATCHIM[ch] ? "을" : "를";
+    return "을(를)";
+  }
+  function birthdayInfo() {                                                  // 오늘 생일인 친구와, 이번 주(일요일~토요일) 다른 날 생일인 친구
+    var now = new Date(), y = now.getFullYear(), todayN = bdayDn(y, now.getMonth() + 1, now.getDate()), startN = todayN - now.getDay(), endN = startN + 6;
+    var today = [], week = [];
+    ROSTER.forEach(function (name, idx) {
+      if (!bdayHas(name)) return;
+      var b = bdays[name]; if (!b.m || !b.d) return;                         // 월과 일이 둘 다 있어야 함
+      for (var yy = y - 1; yy <= y + 1; yy++) {                              // 해가 바뀌는 주도 맞게
+        var dd = b.m === 2 && b.d === 29 && !bdayLeap(yy) ? 28 : b.d, n = bdayDn(yy, b.m, dd);   // 2월 29일 생일은 윤년이 아닌 해에는 2월 28일에 축하
+        if (n >= startN && n <= endN) {
+          if (n === todayN) today.push(name); else week.push({ name: name, n: n, idx: idx, label: b.m + "월 " + b.d + "일" });
+          break;
+        }
+      }
+    });
+    week.sort(function (a, b) { return a.n - b.n || a.idx - b.idx; });
+    return { today: today, week: week };
+  }
+  // 색종이: 퀴즈·짝 맞추기와 같은 부품(FX)을 그대로 써서, 단추와 양쪽 아래에서 터뜨리고 위에서 쏟아지게 함
+  function birthdayCheer(btn) {
+    try {
+      if (fxReady()) {
+        FX.w = window.innerWidth; FX.h = window.innerHeight;
+        var r = btn.getBoundingClientRect(), x = r.width ? r.left + r.width / 2 : FX.w / 2, y = r.height ? r.top + r.height / 2 : FX.h / 3;
+        FX.sz = 1.4; fxRain(200); FX.sz = 1;
+        fxConfetti(x, y, 130, -2.9, -0.25, 7, 15);
+        fxConfetti(FX.w * .08, FX.h * .88, 80, -1.7, -.55, 10, 18); fxConfetti(FX.w * .92, FX.h * .88, 80, -2.6, -1.45, 10, 18);
+        fxLater(900, function () { FX.sz = 1.4; fxRain(150); FX.sz = 1; fxConfetti(x, y, 70, -2.9, -.25, 7, 14); });
+        fxRun();
+      }
+    } catch (e) {}
+    var lab = btn.querySelector(".bday-cheer-t");                           // 단추 글자를 잠깐 바꿔서, 움직임이 안 보이는 기기에서도 눌렸다는 것을 알림
+    if (lab) { lab.textContent = "축하해요!"; clearTimeout(bnTimer); bnTimer = setTimeout(function () { lab.textContent = "함께 축하하기"; }, 2600); }
+  }
+  function birthdayRender() {
+    if (!bannerEl) return;
+    var info = birthdayInfo(), emo = assignEmoji(ROSTER);
+    var sig = JSON.stringify([info.today.map(function (n) { return [n, emo[ROSTER.indexOf(n)]]; }), info.week.map(function (w) { return [w.name, w.label]; })]);
+    if (sig === bnSig) return;                                              // 바뀐 게 없으면 다시 그리지 않음 (색종이 중에 단추가 바뀌지 않게)
+    bnSig = sig; clearTimeout(bnTimer); bannerEl.textContent = "";
+    if (!info.today.length && !info.week.length) { bannerEl.hidden = true; return; }
+    if (info.today.length) {
+      var top = bnEl("div", "bday-top"), cake = bnEl("span", "bday-cake", "🎂"); cake.setAttribute("aria-hidden", "true");
+      top.appendChild(cake); top.appendChild(bnEl("span", "bday-badge", "오늘의 친구")); bannerEl.appendChild(top);
+      info.today.forEach(function (name) {
+        var f = bnEl("div", "bday-friend"), pic = bnEl("span", "bday-pic", emo[ROSTER.indexOf(name)] || "🙂"), txt = bnEl("div", "bday-text");
+        pic.setAttribute("aria-hidden", "true");
+        txt.appendChild(bnEl("p", "bday-hello", name + ", 생일 축하해요!"));
+        txt.appendChild(bnEl("p", "bday-warm", "하나님이 " + name + eulReul(name) + " 이 세상에 보내 주셔서 정말 기뻐요. 우리 모두 축하해 줘요!"));
+        f.appendChild(pic); f.appendChild(txt); bannerEl.appendChild(f);
+      });
+      var btn = bnEl("button", "bday-cheer"), ico = bnEl("span", "bday-cheer-i", "🎉");
+      btn.type = "button"; ico.setAttribute("aria-hidden", "true");
+      btn.appendChild(ico); btn.appendChild(document.createTextNode(" ")); btn.appendChild(bnEl("span", "bday-cheer-t", "함께 축하하기"));
+      btn.addEventListener("click", function () { birthdayCheer(btn); });
+      bannerEl.appendChild(btn);
+    }
+    if (info.week.length) {
+      var wk = bnEl("p", "bday-week", "이번 주 생일 · " + info.week.map(function (w) { return w.name + " (" + w.label + ")"; }).join(", "));
+      if (!info.today.length) wk.classList.add("only");
+      bannerEl.appendChild(wk);
+    }
+    bannerEl.hidden = false;
+  }
+  function birthdayRefresh() { try { birthdayRender(); } catch (e) {} }
+  rosterTabs.push({ kind: "birthday-banner", rename: birthdayRefresh, add: birthdayRefresh, remove: birthdayRefresh, restore: birthdayRefresh });   // 이름이 바뀌거나 명단이 달라지면 (생일 기록을 먼저 고친 뒤) 다시 그림
+  rosterWatchers.push(birthdayRefresh);                                     // 서버에서 받았거나 학기 기록을 불러와서 명단이 바뀔 때
+  document.addEventListener("visibilitychange", birthdayRefresh);          // 화면을 열어 둔 채 자정이 지나도 날짜에 맞게 바뀜
+  window.addEventListener("focus", birthdayRefresh);
+  setInterval(birthdayRefresh, 60000);
+  birthdayRefresh();
+
   var MANAGE_HTML =
     '<section class="mg">' +
       '<p class="mg-sync" role="status" hidden>기기에만 저장 중</p>' +
       '<h2 class="mg-h">우리 반 명단</h2>' +
       '<p class="mg-help">이름을 누르면 바로 고칠 수 있어요. 여기서 고치면 출석과 달란트에도 함께 바뀌어요.</p>' +
+      '<p class="mg-help mg-bhelp">생일은 월과 일만 골라요. 고르면 바로 저장돼요. 월과 일을 둘 다 고르면 다른 기기에서도 보여요.</p>' +
       '<ul class="mg-list"></ul>' +
       '<div class="mg-add"><input class="mg-new" type="text" maxlength="' + NAME_MAX + '" placeholder="새 아이의 가명" aria-label="새 아이의 가명" autocomplete="off" autocapitalize="none" spellcheck="false">' +
         '<button type="button" class="mg-addbtn">추가</button></div>' +
@@ -2511,6 +2733,23 @@
     var $ = function (sel) { return root.querySelector(sel); };
     var listEl = $(".mg-list"), newEl = $(".mg-new"), addBtn = $(".mg-addbtn"), msgEl = $(".mg-msg"), classEl = $(".mg-cname");
     var rows = [], armedIndex = -1, armTimer = 0, armedAt = 0;
+    var MONTH_OPTS = '<option value="">월</option>';
+    for (var mo = 1; mo <= 12; mo++) MONTH_OPTS += '<option value="' + mo + '">' + mo + '월</option>';
+    function fillDays(sel, m, d) {                                          // 일 목록은 고른 달의 날짜 수에 맞춤 (달을 아직 안 골랐으면 31일까지)
+      var h = '<option value="">일</option>', n = bdayMax(m), k;
+      for (k = 1; k <= n; k++) h += '<option value="' + k + '">' + k + '일</option>';
+      sel.innerHTML = h; sel.value = d ? String(d) : ""; sel.classList.toggle("unset", !d);
+    }
+    function onBday(i, bm, bd) {                                            // 월이나 일을 고르면 바로 저장
+      var name = ROSTER[i], m = bm.value ? Number(bm.value) : null, d = bd.value ? Number(bd.value) : null, note = "";
+      if (m && d && d > bdayMax(m)) { note = m + "월은 " + bdayMax(m) + "일까지예요. 일을 다시 골라 주세요."; d = null; }
+      bm.classList.toggle("unset", !m); fillDays(bd, m, d);
+      bdaySet(name, m, d); birthdayRefresh();
+      if (note) say(note, true);
+      else if (m && d) say(name + " 생일을 저장했어요: " + m + "월 " + d + "일");
+      else if (m || d) say(name + " 생일(" + (m ? "월" : "일") + ")을 저장했어요. " + (m ? "일" : "월") + "도 골라 주세요.");
+      else say(name + " 생일을 지웠어요.");
+    }
 
     function say(text, bad) { msgEl.textContent = text || ""; msgEl.classList.toggle("bad", !!bad); }
     // 이름이 쓸 수 있는 이름인지 (exceptIndex: 고치는 중인 본인은 겹침 검사에서 뺌)
@@ -2531,6 +2770,7 @@
       rows.forEach(function (r, i) {
         r.emo.textContent = emo[i]; r.input.value = ROSTER[i];
         r.input.setAttribute("aria-label", ROSTER[i] + " 이름 고치기"); r.del.setAttribute("aria-label", ROSTER[i] + " 명단에서 빼기");
+        r.bg.setAttribute("aria-label", ROSTER[i] + " 생일"); r.bm.setAttribute("aria-label", ROSTER[i] + " 생일 월"); r.bd.setAttribute("aria-label", ROSTER[i] + " 생일 일");
       });
     }
     function commitRename(i, input) {
@@ -2557,14 +2797,20 @@
       var emo = assignEmoji(ROSTER);
       ROSTER.forEach(function (name, i) {
         var li = document.createElement("li"); li.className = "mg-row";
-        li.innerHTML = '<span class="mg-emo" aria-hidden="true"></span><input class="mg-name" type="text" maxlength="' + NAME_MAX + '" autocomplete="off" autocapitalize="none" spellcheck="false"><button type="button" class="mg-del">빼기</button>';
+        li.innerHTML = '<span class="mg-emo" aria-hidden="true"></span><input class="mg-name" type="text" maxlength="' + NAME_MAX + '" autocomplete="off" autocapitalize="none" spellcheck="false"><button type="button" class="mg-del">빼기</button>' +
+          '<div class="mg-bday" role="group"><span class="mg-bicon" aria-hidden="true">🎂</span><select class="mg-bm"></select><select class="mg-bd"></select></div>';
         var input = li.querySelector(".mg-name"), del = li.querySelector(".mg-del");
+        var bg = li.querySelector(".mg-bday"), bm = li.querySelector(".mg-bm"), bd = li.querySelector(".mg-bd"), cur = bdayHas(name) ? bdays[name] : null;
         li.querySelector(".mg-emo").textContent = emo[i]; input.value = name;
         input.setAttribute("aria-label", name + " 이름 고치기"); del.setAttribute("aria-label", name + " 명단에서 빼기");
         input.addEventListener("change", function () { commitRename(i, input); });
         input.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); input.blur(); commitRename(i, input); } });
         del.addEventListener("click", function () { onDelete(i); });
-        rows.push({ li: li, emo: li.querySelector(".mg-emo"), input: input, del: del });
+        bm.innerHTML = MONTH_OPTS; bm.value = cur && cur.m ? String(cur.m) : ""; bm.classList.toggle("unset", !bm.value); fillDays(bd, cur && cur.m, cur && cur.d);
+        bg.setAttribute("aria-label", name + " 생일"); bm.setAttribute("aria-label", name + " 생일 월"); bd.setAttribute("aria-label", name + " 생일 일");
+        bm.addEventListener("change", function () { onBday(i, bm, bd); });
+        bd.addEventListener("change", function () { onBday(i, bm, bd); });
+        rows.push({ li: li, emo: li.querySelector(".mg-emo"), input: input, del: del, bg: bg, bm: bm, bd: bd });
         listEl.appendChild(li);
       });
     }
@@ -2594,7 +2840,7 @@
     renderList();
     // 서버에서 받았거나 학기 기록을 불러와서 명단이 바뀌면 이 화면도 새로 그림. 단, 지금 글자를 쓰는 중이면 끝난 뒤에 그림 (입력이 끊기지 않게)
     var redrawLater = false;
-    function typingHere() { var a = document.activeElement; return !!(a && root.contains(a) && a.tagName === "INPUT"); }
+    function typingHere() { var a = document.activeElement; return !!(a && root.contains(a) && (a.tagName === "INPUT" || a.tagName === "SELECT")); }
     rosterWatchers.push(function () {
       if (typingHere()) { redrawLater = true; if (document.activeElement !== classEl) syncRows(); return; }
       renderList(); classEl.value = currentClassName(); say("");
