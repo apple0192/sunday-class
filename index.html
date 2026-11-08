@@ -903,29 +903,138 @@
   .bday-week { margin: clamp(12px, 2vw, 18px) 0 0; font-size: clamp(16px, 2.2vw, 22px); font-weight: 700; line-height: 1.5; color: #6B3A4A; word-break: keep-all; }
   .bday-week.only { margin-top: 0; font-size: clamp(18px, 2.6vw, 26px); }
   @media (max-width: 560px) { .bday-friend { grid-template-columns: 1fr; justify-items: center; text-align: center; } }
+
+  /* ----- 반 관리: 빼기 단추를 생일 줄의 맨 오른쪽에 (윗줄: 그림+이름 / 아랫줄: 생일 ……… 빼기) ----- */
+  .mg-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "emo name name" ". bday del"; align-items: center; column-gap: 14px; row-gap: 12px; }
+  .mg-emo { grid-area: emo; }
+  .mg-name { grid-area: name; justify-self: stretch; width: 100%; }
+  .mg-bday { grid-area: bday; flex-wrap: wrap; min-width: 0; padding-left: 0; }
+  .mg-del { grid-area: del; justify-self: end; align-self: center; width: 112px; padding: 0 8px; }      /* 폭을 고정: "정말 뺄까요?"로 바뀌어도 단추가 넓어지지 않고 두 줄로 나뉨 */
+  .mg-del.arm { font-size: 20px; line-height: 1.15; white-space: normal; }
+  @media (max-width: 560px) {
+    .mg-row { grid-template-areas: "emo name name" "bday bday del"; column-gap: 10px; padding: 10px 10px 10px 12px; }
+    .mg-bday { gap: 8px; }
+    .mg-bicon { font-size: 28px; }
+    .mg-bm, .mg-bd { min-width: 0; padding: 0 6px; font-size: 22px; }
+    .mg-bm { width: 92px; }
+    .mg-bd { width: 86px; }
+    .mg-del { width: 92px; min-width: 92px; padding: 0 4px; font-size: 22px; }
+    .mg-del.arm { font-size: 18px; }
+  }
+  @media (max-width: 440px) {
+    .mg-bicon { display: none; }
+    .mg-bm, .mg-bd { font-size: 20px; }
+    .mg-bm { width: 90px; }
+    .mg-bd { width: 86px; }
+    .mg-del { font-size: 20px; }
+  }
+
+  /* ----- 로그인 · 탭 권한 ----- */
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; width: 100%; position: relative; z-index: 30; }
+  #fs { position: static; }
+  .acct { position: relative; margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-width: 100%; }
+  .acct [hidden] { display: none !important; }
+  .acct-btn { min-height: 52px; padding: 4px 18px; font: inherit; font-size: 18px; font-weight: 800; line-height: 1.2; color: var(--ink); background: #FFF8E6; border: 2px solid var(--line); border-radius: 14px; cursor: pointer; touch-action: manipulation; }
+  .acct-btn:active { background: #FBE8C4; }
+  .acct-btn:focus-visible, .pop-in:focus-visible, .pop-go:focus-visible, .pop-close:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+  .acct-who { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; }
+  .acct-name { font-size: 20px; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+  .acct-role { padding: 2px 12px; border-radius: 999px; font-size: 16px; font-weight: 800; line-height: 1.5; color: #FFFFFF; background: #5E6D7B; }
+  .acct-role.r-admin { background: #7A1F3D; }
+  .acct-role.r-teacher { background: #1F7A46; }
+  .acct-role.r-parent { background: #2B6CB0; }
+  .acct-note { margin: 0; max-width: 360px; text-align: right; font-size: 15px; font-weight: 700; color: var(--ink-soft); }
+  .acct-pop { position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; width: min(92vw, 380px); box-sizing: border-box; padding: 16px 18px 14px; text-align: left; background: #FFF8E6; border: 3px solid rgba(44, 62, 80, 0.35); border-radius: 22px; box-shadow: 0 10px 30px rgba(44, 62, 80, 0.25); }
+  .pop-h { margin: 0 0 8px; font-size: 24px; font-weight: 900; }
+  .pop-l { display: block; margin: 10px 0 4px; font-size: 17px; font-weight: 800; }
+  .pop-in { display: block; width: 100%; box-sizing: border-box; min-height: 56px; padding: 0 14px; font: inherit; font-size: 20px; color: var(--ink); background: #FFFFFF; border: 2px solid rgba(44, 62, 80, 0.35); border-radius: 14px; }
+  .pop-msg { min-height: 1.4em; margin: 10px 2px 0; font-size: 17px; font-weight: 800; line-height: 1.4; color: #B23A35; }
+  .pop-msg.good { color: #1F7A46; }
+  .pop-btns { display: flex; gap: 10px; margin-top: 10px; }
+  .pop-go, .pop-close { min-height: 56px; padding: 0 22px; font: inherit; font-size: 20px; font-weight: 900; border-radius: 14px; cursor: pointer; touch-action: manipulation; }
+  .pop-go { flex: 1 1 auto; color: #FFFFFF; background: #2C3E50; border: 2px solid #2C3E50; }
+  .pop-go:disabled { opacity: 0.6; cursor: default; }
+  .pop-close { color: var(--ink); background: transparent; border: 2px solid rgba(44, 62, 80, 0.35); }
+  .pop-small { margin: 12px 2px 0; font-size: 15px; font-weight: 600; color: var(--ink-soft); }
+  [role="tab"][hidden] { display: none; }
+  .lock-hint { margin: 6px 4px 0; text-align: right; font-size: clamp(14px, 1.8vw, 18px); font-weight: 700; color: var(--ink-soft); }
+  .lock-hint[hidden] { display: none; }
+  /* 보기만 할 수 있는 사람(권한 "보기"): 숫자를 바꾸거나 지우거나 추가하는 단추는 보이지 않게 */
+  .attend.ro .at-ctl, .attend.ro .at-all, .attend.ro .at-reset, .attend.ro .at-confirm { display: none !important; }
+  .talent.ro .tl-minus, .talent.ro .tl-plus, .talent.ro .tl-plus5, .talent.ro .tl-reset, .talent.ro .tl-backup, .talent.ro .tl-bk { display: none !important; }
+  .manage.ro .mg-del, .manage.ro .mg-add { display: none !important; }
+  .manage.ro .mg-name, .manage.ro .mg-cname { border-bottom-style: solid; border-bottom-color: transparent; cursor: default; }
+  @media (max-width: 560px) { .acct-btn { padding: 4px 12px; font-size: 17px; } .acct-name { font-size: 18px; } }
+
+  /* ----- 찬양: 전체화면에서는 한 줄에 하나씩, 영상이 카드 폭을 꽉 채워 크게 (전체화면이 아닐 때의 모양은 그대로) ----- */
+  html.is-fs .pr-cards { grid-template-columns: 1fr; gap: 28px; }
 </style>
 </head>
 <body>
 <div class="page">
   <header>
+    <div class="topbar">
+      <button type="button" id="fs" hidden><span>전체화면</span><span class="fs-en" lang="en">Full screen</span></button>
+      <div class="acct" id="acct">
+        <button type="button" class="acct-btn" id="acct-login" aria-haspopup="dialog" aria-expanded="false">로그인</button>
+        <div class="acct-who" id="acct-who" hidden>
+          <span class="acct-name" id="acct-name"></span><span class="acct-role" id="acct-role"></span>
+          <button type="button" class="acct-btn" id="acct-pw" aria-haspopup="dialog" aria-expanded="false">비밀번호 바꾸기</button>
+          <button type="button" class="acct-btn" id="acct-out">로그아웃</button>
+        </div>
+        <p class="acct-note" id="acct-note" hidden></p>
+        <form class="acct-pop" id="login-pop" role="dialog" aria-label="로그인" novalidate hidden>
+          <h2 class="pop-h">로그인</h2>
+          <label class="pop-l" for="login-email">이메일</label>
+          <input class="pop-in" id="login-email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false">
+          <label class="pop-l" for="login-pw">비밀번호</label>
+          <input class="pop-in" id="login-pw" type="password" autocomplete="current-password">
+          <p class="pop-msg" id="login-msg" role="alert"></p>
+          <div class="pop-btns"><button type="submit" class="pop-go" id="login-go">로그인</button><button type="button" class="pop-close" id="login-close">닫기</button></div>
+          <p class="pop-small">계정은 담당 선생님이 만들어 드려요.</p>
+        </form>
+        <form class="acct-pop" id="pw-pop" role="dialog" aria-label="비밀번호 바꾸기" novalidate hidden>
+          <h2 class="pop-h">비밀번호 바꾸기</h2>
+          <label class="pop-l" for="pw-new">새 비밀번호 (8글자 이상)</label>
+          <input class="pop-in" id="pw-new" type="password" autocomplete="new-password">
+          <label class="pop-l" for="pw-new2">새 비밀번호 한 번 더</label>
+          <input class="pop-in" id="pw-new2" type="password" autocomplete="new-password">
+          <p class="pop-msg" id="pw-msg" role="alert"></p>
+          <div class="pop-btns"><button type="submit" class="pop-go" id="pw-go">바꾸기</button><button type="button" class="pop-close" id="pw-close">닫기</button></div>
+        </form>
+      </div>
+    </div>
     <h1>초등 3부 햇살반</h1>
     <p class="h1-en" lang="en">Sunshine Class · Elementary Division 3</p>
     <p class="today" id="today"></p>
     <p class="today-en" id="today-en" lang="en"></p>
-    <button type="button" id="fs" hidden><span>전체화면</span><span class="fs-en" lang="en">Full screen</span></button>
   </header>
 
   <section id="bday-banner" class="bday" role="region" aria-label="생일 축하" hidden></section>
 
   <nav aria-label="수업 도구 메뉴">
     <div role="tablist" id="tabs"></div>
+    <p class="lock-hint" id="lock-hint" hidden>🔒 로그인하면 더 볼 수 있어요</p>
   </nav>
 
   <div id="panels"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
 <script>
 (function () {
+  // ===================== 로그인 준비 (Supabase 공식 도구 supabase-js v2는 위의 한 줄로 불러옵니다) =====================
+  // 로그인은 supabase-js가 기기에 저장해 둡니다 (아래 AUTH_KEY). 로그인 흔적이 없으면 "로그아웃 상태"로 보고,
+  // 이 기기에 저장된 출석·달란트·명단·생일 기록은 읽지도 쓰지도 않습니다 (기록은 그대로 두고, 로그인하면 다시 쓰입니다).
+  var AUTH_KEY = "sb-zodfzeeiqpeokmqdgqrf-auth-token";                       // 프로젝트 주소의 앞부분으로 만든 이름 (supabase-js의 기본 이름과 같음)
+  var devLocked = !(function () {
+    try { var o = JSON.parse(window.localStorage.getItem(AUTH_KEY) || "null"); return !!(o && (typeof o.access_token === "string" || typeof o.refresh_token === "string")); } catch (e) { return false; }
+  })();
+  var AUTH = { client: null, noLib: false, session: null, member: null, memberFailed: false, perms: null, ready: false, bootUid: null, reloading: false, levelSig: "" };
+  var accessWatchers = [];                                                   // 권한이 정해지거나 바뀔 때 알려 받을 곳들 (반 관리의 읽기 전용 처리 등)
+  function devGet(key) { return devLocked ? null : window.localStorage.getItem(key); }
+  function devSet(key, value) { if (!devLocked) window.localStorage.setItem(key, value); }
+
   var TABS = [
     ["공과", "Lesson"],
     ["성경 이야기", "Bible Story"],
@@ -1787,7 +1896,7 @@
   var rosterState = { ops: [], synced: false, classPending: false, classSynced: false, bad: false, running: false, again: false, loading: false, lastPull: 0, paint: null, classTimer: 0, noBirthday: false };
   function cleanName(t) { return String(t == null ? "" : t).replace(/\s+/g, " ").replace(/^ | $/g, ""); }
   function sameName(a, b) { return cleanName(a).toLowerCase() === cleanName(b).toLowerCase(); }
-  function saveRoster() { try { window.localStorage.setItem(ROSTER_KEY, JSON.stringify({ v: 1, names: ROSTER.slice(), ops: rosterState.ops, synced: rosterState.synced })); } catch (e) {} }
+  function saveRoster() { try { devSet(ROSTER_KEY, JSON.stringify({ v: 1, names: ROSTER.slice(), ops: rosterState.ops, synced: rosterState.synced })); } catch (e) {} }
   function saveClassName(n) { try { window.localStorage.setItem(CLASSNAME_KEY, JSON.stringify({ v: 1, name: n, pending: rosterState.classPending, synced: rosterState.classSynced })); } catch (e) {} }
   function currentClassName() { var h = document.querySelector("header h1"); return h ? h.textContent : DEFAULT_CLASS; }
   function applyClassName(name) {                                  // 화면 맨 위 제목과 브라우저 탭 제목을 바꿈 (영어 부제는 원래 반 이름일 때만 보임)
@@ -1889,10 +1998,13 @@
     if (ctl) opts.signal = ctl.signal;
     return Promise.race([window.fetch(url, opts), guard]).then(function (res) { clearTimeout(timer); return res; }, function (err) { clearTimeout(timer); throw err; });
   }
-  function sbRest(path, method, body, prefer) {                                   // 공개 키만 씀 (그 밖의 증표는 보내지 않음)
-    var headers = { "apikey": SB_KEY, "Content-Type": "application/json" };
-    if (prefer) headers["Prefer"] = prefer;
-    return sbFetch(SB_URL + "/rest/v1/" + path, { method: method, headers: headers, body: body !== undefined ? JSON.stringify(body) : undefined, cache: "no-store" }).then(function (res) {
+  function sbRest(path, method, body, prefer) {                                   // 공개 키 + (로그인했다면) 로그인한 사람의 증표. 비밀 키는 쓰지 않음
+    return authToken().then(function (tok) {
+      var headers = { "apikey": SB_KEY, "Content-Type": "application/json" };
+      if (prefer) headers["Prefer"] = prefer;
+      if (tok) headers["Authorization"] = "Bearer " + tok;
+      return sbFetch(SB_URL + "/rest/v1/" + path, { method: method, headers: headers, body: body !== undefined ? JSON.stringify(body) : undefined, cache: "no-store" });
+    }).then(function (res) {
       return res.text().then(function (t) {
         if (!res.ok) { var e = new Error("HTTP " + res.status); e.status = res.status; throw e; }
         try { return t ? JSON.parse(t) : null; } catch (er) { return null; }
@@ -1965,6 +2077,7 @@
   function paintRosterSync() { if (rosterState.paint) rosterState.paint(); }
   function rosterFlush() {
     if (rosterState.running) { rosterState.again = true; return Promise.resolve(); }
+    if (!accessCanEdit("반 관리")) return Promise.resolve();                      // 반 관리를 고칠 수 없는 사람은 서버에 쓰지 않음
     if (!rosterState.ops.length && !rosterState.classPending && !bdayPendingCount()) return Promise.resolve();
     rosterState.running = true;
     return runAllOps().then(classFlush).then(bdayFlush)
@@ -2021,6 +2134,7 @@
     });
   }
   function rosterRefresh(force) {
+    if (!accessCanSee("출석") && !accessCanSee("달란트") && !accessCanSee("반 관리")) return Promise.resolve();      // 명단을 볼 수 없는 사람은 서버에 묻지 않음
     if (rosterState.loading) return Promise.resolve();
     if (!force && Date.now() - rosterState.lastPull < 2000) return Promise.resolve();
     rosterState.loading = true; rosterState.lastPull = Date.now();
@@ -2029,14 +2143,16 @@
       sbRest("class_info?select=class_name", "GET")
     ]).then(function (res) {
       var remote = validNames(res[0]);
-      if (!remote.length && !rosterState.synced && !rosterState.ops.length && ROSTER.length) rosterState.ops.push({ k: "set", names: ROSTER.slice(), d: 0 });   // 서버 명단이 비어 있고 이 기기가 처음 연결: 이 기기의 명단을 올림
-      applyRoster(rosterState.ops.length ? applyOpsTo(remote, rosterState.ops) : remote);
+      if (!remote.length && !rosterState.synced && !rosterState.ops.length && ROSTER.length && accessCanEdit("반 관리")) rosterState.ops.push({ k: "set", names: ROSTER.slice(), d: 0 });   // 서버 명단이 비어 있고 이 기기가 처음 연결: 이 기기의 명단을 올림
+      var target = rosterState.ops.length ? applyOpsTo(remote, rosterState.ops) : remote;
+      if (!remote.length && ROSTER.some(function (n) { return target.indexOf(n) < 0; })) throw new Error("서버가 명단을 보여 주지 않음");   // 서버가 빈 목록만 보여 줄 때(서버의 접근 잠금 등): 이 기기의 명단과 기록은 지우지 않고, 기기에만 저장 중으로 둠
+      applyRoster(target);
       rosterState.synced = true; saveRoster();
       if (bdayPull(res[0])) rosterWatchers.forEach(function (f) { f(); });          // 서버의 생일이 이 기기와 다르면 반 관리와 생일 축하 칸도 새로 맞춤
       var rows = res[1] || [], cn = rows.length ? cleanName(rows[0].class_name) : "";
       if (!rosterState.classPending) {
         if (cn && cn.length <= CLASS_MAX) { if (cn !== currentClassName()) { applyClassName(cn); rosterWatchers.forEach(function (f) { f(); }); } rosterState.classSynced = true; saveClassName(cn); }   // 서버의 반 이름이 다르면 반 관리의 반 이름 칸도 새로 맞춤
-        else if (!cn) rosterState.classPending = true;                           // 서버에 반 이름이 아직 없음: 지금 이름을 올림
+        else if (!cn && accessCanEdit("반 관리")) rosterState.classPending = true;                           // 서버에 반 이름이 아직 없음: 지금 이름을 올림
       }
       rosterState.bad = false; paintRosterSync();
       rosterTabs.forEach(function (t) { if (t.refresh) t.refresh(); });         // 명단이 바뀌었을 수 있으니 달란트 숫자도 다시 불러옴
@@ -2064,7 +2180,7 @@
 
   (function restoreRosterAndClassName() {                         // 저장된 명단과 반 이름이 있으면 그것을 씀 (없으면 위의 기본 명단)
     try {
-      var o = JSON.parse(window.localStorage.getItem(ROSTER_KEY) || "null");
+      var o = JSON.parse(devGet(ROSTER_KEY) || "null");
       if (o && Array.isArray(o.names)) {
         var clean = [];
         o.names.forEach(function (n) {
@@ -2123,14 +2239,14 @@
     function load() {
       var saved = {}, pend = [];
       try {
-        var o = JSON.parse(window.localStorage.getItem(ATTEND_KEY) || "{}") || {};
+        var o = JSON.parse(devGet(ATTEND_KEY) || "{}") || {};
         saved = o.counts || {}; pend = Array.isArray(o.pending) ? o.pending : [];
       } catch (e) {}
       ROSTER.forEach(function (n) { var v = Math.floor(Number(saved[n])); counts[n] = v > 0 && v < 100000 ? v : 0; });
       pend.forEach(function (n) { if (counts.hasOwnProperty(n)) dirty[n] = true; });
     }
     function save() {
-      try { window.localStorage.setItem(ATTEND_KEY, JSON.stringify({ v: 1, counts: counts, pending: ROSTER.filter(function (n) { return dirty[n]; }) })); } catch (e) {}
+      try { devSet(ATTEND_KEY, JSON.stringify({ v: 1, counts: counts, pending: ROSTER.filter(function (n) { return dirty[n]; }) })); } catch (e) {}
     }
 
     // ---------- 화면 ----------
@@ -2162,24 +2278,28 @@
     // ---------- Supabase와 주고받기 (브라우저 fetch로 직접) ----------
     function request(path, method, body, prefer) {
       if (typeof window.fetch !== "function") return Promise.reject(new Error("fetch 없음"));
-      var ctl = window.AbortController ? new window.AbortController() : null, timer = setTimeout(function () { if (ctl) ctl.abort(); }, SB_TIMEOUT_MS);
-      var headers = { "apikey": SB_KEY, "Content-Type": "application/json" };
-      if (prefer) headers["Prefer"] = prefer;
-      var done = Promise.race([
-        window.fetch(SB_URL + "/rest/v1/attendance" + path, { method: method, headers: headers, body: body ? JSON.stringify(body) : undefined, signal: ctl ? ctl.signal : undefined, cache: "no-store" }),
-        new Promise(function (_, reject) { setTimeout(function () { reject(new Error("시간 초과")); }, SB_TIMEOUT_MS + 500); })
-      ]);
-      return done.then(function (res) {
-        clearTimeout(timer);
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return res.text().then(function (t) { return t ? JSON.parse(t) : null; });
-      }, function (err) { clearTimeout(timer); throw err; });
+      return authToken().then(function (tok) {                                    // 공개 키 + (로그인했다면) 로그인한 사람의 증표
+        var ctl = window.AbortController ? new window.AbortController() : null, timer = setTimeout(function () { if (ctl) ctl.abort(); }, SB_TIMEOUT_MS);
+        var headers = { "apikey": SB_KEY, "Content-Type": "application/json" };
+        if (prefer) headers["Prefer"] = prefer;
+        if (tok) headers["Authorization"] = "Bearer " + tok;
+        var done = Promise.race([
+          window.fetch(SB_URL + "/rest/v1/attendance" + path, { method: method, headers: headers, body: body ? JSON.stringify(body) : undefined, signal: ctl ? ctl.signal : undefined, cache: "no-store" }),
+          new Promise(function (_, reject) { setTimeout(function () { reject(new Error("시간 초과")); }, SB_TIMEOUT_MS + 500); })
+        ]);
+        return done.then(function (res) {
+          clearTimeout(timer);
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.text().then(function (t) { return t ? JSON.parse(t) : null; });
+        }, function (err) { clearTimeout(timer); throw err; });
+      });
     }
     function netOk() { netBad = false; paintSync(); }
     function netFail() { netBad = true; paintSync(); }
 
     // 못 올린 이름들의 "현재 횟수"를 한 번에 올림 (없는 줄은 새로 만들고, 있으면 고침)
     function flush() {
+      if (!accessCanEdit("출석")) return;                                      // 출석을 고칠 수 없는 사람은 서버에 쓰지 않음
       var names = ROSTER.filter(function (n) { return dirty[n]; });
       if (!names.length) return;
       if (flushing) { flushAgain = true; return; }
@@ -2196,6 +2316,7 @@
 
     // 표에서 불러오기: 표에 없는 명단 이름은 0으로 새로 넣고, 못 올린 기기의 값은 지키고, 나머지는 표의 값을 보여 줌
     function refresh() {
+      if (!accessCanSee("출석")) return;                                      // 출석을 볼 수 없는 사람은 서버에 묻지 않음
       if (loading) return;
       loading = true;
       request("?select=nickname,visits", "GET").then(function (found) {
@@ -2218,6 +2339,7 @@
 
     // ---------- 누를 때마다: 화면 → 기기 → Supabase ----------
     function change(i, d) {
+      if (root.classList.contains("ro")) return;                              // 보기만 할 수 있는 사람은 고칠 수 없음
       var name = ROSTER[i], before = counts[name], now = Math.max(0, before + d);
       if (now === before) return;
       counts[name] = now; dirty[name] = true; save();
@@ -2256,6 +2378,7 @@
     buildRows();
     rosterTabs.push({                                                      // 반 관리에서 명단을 고치면 여기로 알려 줌
       kind: "attendance",
+      refresh: refresh,
       snapshot: function () { var o = {}; ROSTER.forEach(function (n) { o[n] = counts[n] || 0; }); return o; },
       restore: function (v) {                                              // 학기 기록을 되살릴 때: 모든 횟수를 바꾸고, 서버에도 올리도록 표시
         counts = {}; dirty = {};
@@ -2269,6 +2392,7 @@
     paintTop();
 
     allBtn.addEventListener("click", function () {                      // 오늘 모두 ＋1 (실수로 두 번 눌려도 한 번만)
+      if (root.classList.contains("ro")) return;
       var now = Date.now();
       if (now < lockUntil) return;
       lockUntil = now + 700;
@@ -2278,7 +2402,7 @@
     });
     resetBtn.addEventListener("click", function () { confirmEl.hidden = false; resetBtn.hidden = true; });   // 실수로 지우지 않게 한 번 더 물어봄
     noBtn.addEventListener("click", function () { confirmEl.hidden = true; resetBtn.hidden = false; });
-    yesBtn.addEventListener("click", function () { confirmEl.hidden = true; resetBtn.hidden = false; restart(); });
+    yesBtn.addEventListener("click", function () { confirmEl.hidden = true; resetBtn.hidden = false; if (root.classList.contains("ro")) return; restart(); });
 
     // 연결이 안 되는 동안은 가끔 다시 시도, 인터넷이 돌아오거나 이 탭을 다시 열면 바로 시도
     setInterval(function () { if (netBad || Object.keys(dirty).length) refresh(); }, SB_RETRY_MS);
@@ -2324,14 +2448,14 @@
     // ---------- 기기에 저장 (껐다 켜도 유지) ----------
     function load() {
       var saved = {}, pend = [], hadCopy = false, o = null;
-      try { o = JSON.parse(window.localStorage.getItem(TALENT_KEY) || "null"); } catch (e) {}
+      try { o = JSON.parse(devGet(TALENT_KEY) || "null"); } catch (e) {}
       if (o && typeof o === "object") { hadCopy = true; saved = o.counts || {}; pend = Array.isArray(o.pending) ? o.pending : null; }
       counts = {}; dirty = {};
       ROSTER.forEach(function (n) { var v = Math.floor(Number(saved[n])); counts[n] = v > 0 && v < 100000 ? v : 0; });
       if (pend) pend.forEach(function (n) { if (counts.hasOwnProperty(n)) dirty[n] = true; });
       else if (hadCopy) ROSTER.forEach(function (n) { if (counts[n] > 0) dirty[n] = true; });   // 서버와 연결하기 전부터 이 기기에만 있던 숫자: 잃지 않게 처음 한 번 서버에 올림
     }
-    function save() { try { window.localStorage.setItem(TALENT_KEY, JSON.stringify({ v: 1, counts: counts, pending: ROSTER.filter(function (n) { return dirty[n]; }) })); } catch (e) {} }
+    function save() { try { devSet(TALENT_KEY, JSON.stringify({ v: 1, counts: counts, pending: ROSTER.filter(function (n) { return dirty[n]; }) })); } catch (e) {} }
 
     // ---------- Supabase 달란트 표와 주고받기 (출석 탭과 같은 방식) ----------
     function paintSync() { syncEl.hidden = !netBad; }                          // 연결이 안 될 때만 작게 "기기에만 저장 중"
@@ -2339,6 +2463,7 @@
     function netFail() { netBad = true; paintSync(); }
     // 못 올린 이름들의 "현재 달란트"를 한 번에 올림 (없는 줄은 새로 만들고, 있으면 고침)
     function flush() {
+      if (!accessCanEdit("달란트")) return;                                    // 달란트를 고칠 수 없는 사람은 서버에 쓰지 않음
       var names = ROSTER.filter(function (n) { return dirty[n]; });
       if (!names.length) return;
       if (flushing) { flushAgain = true; return; }
@@ -2354,6 +2479,7 @@
     }
     // 표에서 불러오기: 표에 없는 명단 이름은 0으로 새로 넣고, 못 올린 기기의 값은 지키고, 나머지는 표의 값을 보여 줌
     function refresh() {
+      if (!accessCanSee("달란트")) return;                                    // 달란트를 볼 수 없는 사람은 서버에 묻지 않음
       if (loading) return;
       loading = true;
       sbRest("talents?select=nickname,amount", "GET").then(function (found) {
@@ -2411,6 +2537,7 @@
 
     // ---------- 주기 / 빼기 ----------
     function give(i, d) {
+      if (root.classList.contains("ro")) return;                              // 보기만 할 수 있는 사람은 고칠 수 없음
       var name = ROSTER[i], before = counts[name], now = Math.max(0, before + d);
       if (now === before) return;                                              // 0 아래로는 내려가지 않음
       counts[name] = now; dirty[name] = true; save();
@@ -2424,6 +2551,7 @@
     // ---------- 처음부터: 한 번 누르면 "정말 지울까요?", 한 번 더 눌러야 지워짐 ----------
     function disarm() { armed = false; clearTimeout(armTimer); resetBtn.textContent = "달란트 처음부터"; resetBtn.classList.remove("arm"); }
     resetBtn.addEventListener("click", function () {
+      if (root.classList.contains("ro")) return;                              // 보기만 할 수 있는 사람은 고칠 수 없음
       if (!armed) {
         armed = true; armedAt = Date.now(); resetBtn.textContent = "정말 지울까요?"; resetBtn.classList.add("arm");
         clearTimeout(armTimer); armTimer = setTimeout(disarm, 5000);           // 5초 안에 다시 안 누르면 원래대로
@@ -2461,6 +2589,7 @@
     });
     function rDisarm() { rArmed = false; clearTimeout(rTimer); restoreBtn.textContent = "이 기록 다시 불러오기"; restoreBtn.classList.remove("arm"); }
     restoreBtn.addEventListener("click", function () {
+      if (root.classList.contains("ro")) return;
       var text = inEl.value;
       if (rArmed && text === rText) {                                                                  // 두 번째 누름: 정말로 바꿈
         if (Date.now() - rAt < 500) return;                                                            // 실수로 빠르게 두 번 눌러도 바로 바뀌지 않게
@@ -2553,14 +2682,14 @@
   }
   function bdayPendingCount() { return Object.keys(bdayPending).length; }
   function bdaySnapshot() { return JSON.stringify([bdays, Object.keys(bdayPending), bdaySynced]); }
-  function bdaySave() { try { window.localStorage.setItem(BDAY_KEY, JSON.stringify({ v: 1, days: bdays, pending: Object.keys(bdayPending), synced: bdaySynced })); } catch (e) {} }
+  function bdaySave() { try { devSet(BDAY_KEY, JSON.stringify({ v: 1, days: bdays, pending: Object.keys(bdayPending), synced: bdaySynced })); } catch (e) {} }
   function bdaySet(name, m, d) {                                            // 고르면 바로: 기기에 저장하고, 서버에도 올림 (안 되면 "못 올림"으로 기억해 두었다가 다시 올림)
     if (!m && !d) delete bdays[name]; else bdays[name] = { m: m, d: d };
     bdayPending[name] = true; bdaySave(); rosterKick();
   }
   (function bdayLoad() {                                                    // 저장된 생일을 읽음 (이상한 값과, 명단에 없는 이름은 버림)
     var o = null, changed = false;
-    try { o = JSON.parse(window.localStorage.getItem(BDAY_KEY) || "null"); } catch (e) {}
+    try { o = JSON.parse(devGet(BDAY_KEY) || "null"); } catch (e) {}
     if (!o || typeof o !== "object") return;
     bdaySynced = o.synced === true;
     if (o.days && typeof o.days === "object") Object.keys(o.days).forEach(function (n) {
@@ -2583,10 +2712,10 @@
     ROSTER.forEach(function (n) {
       if (bdayPending[n]) return;
       var lv = bdayHas(n) ? bdays[n] : null, full = bdayFull(lv);
-      if (!Object.prototype.hasOwnProperty.call(srv, n)) { if (!bdaySynced && full) bdayPending[n] = true; return; }   // 서버에 이 줄이 아직 없음: 처음이라면 올릴 것으로 표시
+      if (!Object.prototype.hasOwnProperty.call(srv, n)) { if (!bdaySynced && full && accessCanEdit("반 관리")) bdayPending[n] = true; return; }   // 서버에 이 줄이 아직 없음: 처음이라면 올릴 것으로 표시
       var sv = srv[n];
       if (sv) { if (!lv || lv.m !== sv.m || lv.d !== sv.d) bdays[n] = { m: sv.m, d: sv.d }; }
-      else if (full) { if (!bdaySynced) bdayPending[n] = true; else delete bdays[n]; }
+      else if (full) { if (!bdaySynced) { if (accessCanEdit("반 관리")) bdayPending[n] = true; } else delete bdays[n]; }
     });
     bdaySynced = true;
     changed = JSON.stringify(bdays) !== shown;
@@ -2678,6 +2807,7 @@
   }
   function birthdayRender() {
     if (!bannerEl) return;
+    if (!bannerAllowed()) { bnSig = ""; bannerEl.textContent = ""; bannerEl.hidden = true; return; }       // 명단을 볼 수 없는 사람에게는 아이들의 이름과 생일을 보여 주지 않음
     var info = birthdayInfo(), emo = assignEmoji(ROSTER);
     var sig = JSON.stringify([info.today.map(function (n) { return [n, emo[ROSTER.indexOf(n)]]; }), info.week.map(function (w) { return [w.name, w.label]; })]);
     if (sig === bnSig) return;                                              // 바뀐 게 없으면 다시 그리지 않음 (색종이 중에 단추가 바뀌지 않게)
@@ -2741,6 +2871,7 @@
       sel.innerHTML = h; sel.value = d ? String(d) : ""; sel.classList.toggle("unset", !d);
     }
     function onBday(i, bm, bd) {                                            // 월이나 일을 고르면 바로 저장
+      if (isRO()) return;
       var name = ROSTER[i], m = bm.value ? Number(bm.value) : null, d = bd.value ? Number(bd.value) : null, note = "";
       if (m && d && d > bdayMax(m)) { note = m + "월은 " + bdayMax(m) + "일까지예요. 일을 다시 골라 주세요."; d = null; }
       bm.classList.toggle("unset", !m); fillDays(bd, m, d);
@@ -2773,7 +2904,16 @@
         r.bg.setAttribute("aria-label", ROSTER[i] + " 생일"); r.bm.setAttribute("aria-label", ROSTER[i] + " 생일 월"); r.bd.setAttribute("aria-label", ROSTER[i] + " 생일 일");
       });
     }
+    function isRO() { return root.classList.contains("ro"); }
+    function applyRO() {                                                      // 보기만 할 수 있는 사람: 이름·반 이름은 읽기 전용, 생일 칸은 잠금
+      var ro = isRO(), k, els = root.querySelectorAll(".mg-name, .mg-cname, .mg-new");
+      for (k = 0; k < els.length; k++) els[k].readOnly = ro;
+      els = root.querySelectorAll(".mg-bm, .mg-bd");
+      for (k = 0; k < els.length; k++) els[k].disabled = ro;
+    }
+    accessWatchers.push(function () { applyRO(); });
     function commitRename(i, input) {
+      if (isRO()) { input.value = ROSTER[i]; return; }
       var old = ROSTER[i], neu = cleanName(input.value);
       if (neu === old) { input.value = old; return; }
       var err = problem(neu, i);
@@ -2781,6 +2921,7 @@
       rosterRename(i, neu); syncRows(); say("이름을 바꿨어요: " + old + " → " + neu);
     }
     function onDelete(i) {
+      if (isRO()) return;
       if (armedIndex !== i) {                                                 // 한 번 누르면 "정말 뺄까요?"
         disarm(); armedIndex = i; armedAt = Date.now();
         rows[i].del.textContent = "정말 뺄까요?"; rows[i].del.classList.add("arm"); rows[i].li.classList.add("arm");
@@ -2797,8 +2938,9 @@
       var emo = assignEmoji(ROSTER);
       ROSTER.forEach(function (name, i) {
         var li = document.createElement("li"); li.className = "mg-row";
-        li.innerHTML = '<span class="mg-emo" aria-hidden="true"></span><input class="mg-name" type="text" maxlength="' + NAME_MAX + '" autocomplete="off" autocapitalize="none" spellcheck="false"><button type="button" class="mg-del">빼기</button>' +
-          '<div class="mg-bday" role="group"><span class="mg-bicon" aria-hidden="true">🎂</span><select class="mg-bm"></select><select class="mg-bd"></select></div>';
+        li.innerHTML = '<span class="mg-emo" aria-hidden="true"></span><input class="mg-name" type="text" maxlength="' + NAME_MAX + '" autocomplete="off" autocapitalize="none" spellcheck="false">' +
+          '<div class="mg-bday" role="group"><span class="mg-bicon" aria-hidden="true">🎂</span><select class="mg-bm"></select><select class="mg-bd"></select></div>' +
+          '<button type="button" class="mg-del">빼기</button>';
         var input = li.querySelector(".mg-name"), del = li.querySelector(".mg-del");
         var bg = li.querySelector(".mg-bday"), bm = li.querySelector(".mg-bm"), bd = li.querySelector(".mg-bd"), cur = bdayHas(name) ? bdays[name] : null;
         li.querySelector(".mg-emo").textContent = emo[i]; input.value = name;
@@ -2813,8 +2955,10 @@
         rows.push({ li: li, emo: li.querySelector(".mg-emo"), input: input, del: del, bg: bg, bm: bm, bd: bd });
         listEl.appendChild(li);
       });
+      applyRO();
     }
     function addChild() {
+      if (isRO()) return;
       var name = cleanName(newEl.value);
       if (!name) { say("새 아이의 가명을 적어 주세요.", true); return; }
       if (ROSTER.length >= ROSTER_MAX) { say("명단은 " + ROSTER_MAX + "명까지 만들 수 있어요.", true); return; }
@@ -2827,17 +2971,19 @@
 
     // ---------- 반 이름 ----------
     classEl.value = currentClassName();
-    classEl.addEventListener("input", function () {                           // 쓰는 대로 화면 맨 위 제목이 바로 바뀌고 저장됨 (빈 칸은 적용하지 않음). 서버에는 입력이 잠깐 멈추면 올림
+    classEl.addEventListener("input", function () {
+      if (isRO()) return;                           // 쓰는 대로 화면 맨 위 제목이 바로 바뀌고 저장됨 (빈 칸은 적용하지 않음). 서버에는 입력이 잠깐 멈추면 올림
       var n = cleanName(classEl.value);
       if (n && n.length <= CLASS_MAX) { applyClassName(n); classChanged(n, false); }
     });
     classEl.addEventListener("change", function () {
+      if (isRO()) { classEl.value = currentClassName(); return; }
       var n = cleanName(classEl.value);
       if (!n) { classEl.value = currentClassName(); say("반 이름은 비워 둘 수 없어요.", true); return; }
       if (n.length > CLASS_MAX) { classEl.value = currentClassName(); say("반 이름은 " + CLASS_MAX + "글자까지 쓸 수 있어요.", true); return; }
       classEl.value = n; applyClassName(n); classChanged(n, true); say("반 이름을 바꿨어요: " + n);
     });
-    renderList();
+    renderList(); applyRO();
     // 서버에서 받았거나 학기 기록을 불러와서 명단이 바뀌면 이 화면도 새로 그림. 단, 지금 글자를 쓰는 중이면 끝난 뒤에 그림 (입력이 끊기지 않게)
     var redrawLater = false;
     function typingHere() { var a = document.activeElement; return !!(a && root.contains(a) && (a.tagName === "INPUT" || a.tagName === "SELECT")); }
@@ -2920,6 +3066,7 @@
   });
 
   function select(index, focusTab) {
+    if (AUTH.ready && tabEls[index].hidden) return;                          // 숨겨진 탭은 고를 수 없음
     tabEls.forEach(function (t, i) {
       var on = i === index;
       t.setAttribute("aria-selected", on ? "true" : "false");
@@ -2933,11 +3080,14 @@
   tablist.addEventListener("keydown", function (e) {
     var cur = tabEls.indexOf(document.activeElement);
     if (cur < 0) return;
-    var next = null;
-    if (e.key === "ArrowRight") next = (cur + 1) % TABS.length;
-    else if (e.key === "ArrowLeft") next = (cur - 1 + TABS.length) % TABS.length;
-    else if (e.key === "Home") next = 0;
-    else if (e.key === "End") next = TABS.length - 1;
+    var vis = [], k;                                                         // 보이는 탭끼리만 오감
+    for (k = 0; k < tabEls.length; k++) if (!tabEls[k].hidden) vis.push(k);
+    var at = vis.indexOf(cur), next = null;
+    if (at < 0 || !vis.length) return;
+    if (e.key === "ArrowRight") next = vis[(at + 1) % vis.length];
+    else if (e.key === "ArrowLeft") next = vis[(at - 1 + vis.length) % vis.length];
+    else if (e.key === "Home") next = vis[0];
+    else if (e.key === "End") next = vis[vis.length - 1];
     if (next !== null) { e.preventDefault(); select(next, true); }
   });
 
@@ -2963,11 +3113,208 @@
       } catch (e) {}
     });
     document.addEventListener("fullscreenchange", function () {
+      de.classList.toggle("is-fs", !!document.fullscreenElement);                 // 전체화면인 동안만 켜짐 (찬양 탭이 이것을 보고 한 줄에 하나씩 크게 보여 줌)
       fsBtn.innerHTML = document.fullscreenElement
         ? '<span>전체화면 끝내기</span><span class="fs-en" lang="en">Exit full screen</span>'
         : '<span>전체화면</span><span class="fs-en" lang="en">Full screen</span>';
     });
   }
+
+  // ===================== 로그인 (Supabase 공식 도구 supabase-js v2) · 탭 권한 =====================
+  // 계정은 관리자가 만들어서 초대합니다. 이 화면에는 가입 기능이 없습니다.
+  // 탭을 숨기는 것은 보기 좋게 하려는 것일 뿐이고, 진짜 잠금은 Supabase의 보안 규칙(RLS)이 합니다. (화면만 숨기고 끝내지 않음)
+  var LESSON_TABS = ["공과", "성경 이야기", "퀴즈", "짝 맞추기", "찬양"];
+  function authClient() {                                                    // supabase-js가 불러와졌을 때만 만듦
+    if (!AUTH.client && !AUTH.noLib) {
+      try {
+        if (window.supabase && typeof window.supabase.createClient === "function") {
+          AUTH.client = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: AUTH_KEY } });
+        } else AUTH.noLib = true;
+      } catch (e) { AUTH.noLib = true; }
+    }
+    return AUTH.client;
+  }
+  function authToken() {                                                     // 지금 로그인한 사람의 증표 (만료됐으면 도구가 새로 받아 옴). 로그인 안 했으면 null
+    var c = authClient(), done;
+    if (!c) return Promise.resolve(null);
+    try { done = c.auth.getSession().then(function (r) { return r && r.data && r.data.session ? r.data.session.access_token : null; }, function () { return null; }); }
+    catch (e) { return Promise.resolve(null); }                              // 로그인 도구에 문제가 생겨도 앱 전체가 멈추지 않게
+    return Promise.race([done, new Promise(function (res) { setTimeout(function () { res(null); }, 4000); })]);   // 로그인 도구가 늦어도 앱이 멈추지 않게
+  }
+  // 등급은 "회원 표"에서만 읽음 (계정 정보에 적힌 값은 믿지 않음)
+  function isAdmin() { return !!(AUTH.session && AUTH.member && AUTH.member.role === "관리자"); }
+  function audienceNow() { var r = AUTH.session && AUTH.member && AUTH.member.role; return r === "교사" ? "교사" : r === "부모" ? "부모" : "누구나"; }   // 로그인 안 함·회원 표에 없음 = 누구나
+  function levelOf(tab) {
+    if (isAdmin()) return "고치기";                                          // 관리자: 권한 표와 상관없이 모든 탭, 모든 단추
+    if (!AUTH.perms) return LESSON_TABS.indexOf(tab) > -1 ? "보기" : "숨김";  // 권한 표를 못 읽어 왔으면 공과 탭들만
+    var row = AUTH.perms[tab], lv = row && row[audienceNow()];
+    return lv === "고치기" || lv === "보기" ? lv : "숨김";                    // 표에 없는 조합은 숨김
+  }
+  function accessCanSee(tab) { return !AUTH.ready || levelOf(tab) !== "숨김"; }       // 권한을 알기 전에는 막지 않음 (그동안 화면은 숨겨져 있음)
+  function accessCanEdit(tab) { return !AUTH.ready || levelOf(tab) === "고치기"; }
+  function bannerAllowed() { return AUTH.ready ? (levelOf("출석") !== "숨김" || levelOf("달란트") !== "숨김" || levelOf("반 관리") !== "숨김") : !devLocked; }   // 생일 축하 칸은 명단을 볼 수 있는 사람에게만
+
+  var acctEl = document.getElementById("acct"), loginBtn = document.getElementById("acct-login"), whoEl = document.getElementById("acct-who"), nameEl = document.getElementById("acct-name"), roleEl = document.getElementById("acct-role"), noteEl = document.getElementById("acct-note");
+  var pwBtn = document.getElementById("acct-pw"), outBtn = document.getElementById("acct-out"), hintEl = document.getElementById("lock-hint");
+  var loginPop = document.getElementById("login-pop"), emailEl = document.getElementById("login-email"), lpwEl = document.getElementById("login-pw"), loginMsg = document.getElementById("login-msg"), loginGo = document.getElementById("login-go"), loginClose = document.getElementById("login-close");
+  var pwPop = document.getElementById("pw-pop"), pw1 = document.getElementById("pw-new"), pw2 = document.getElementById("pw-new2"), pwMsg = document.getElementById("pw-msg"), pwGo = document.getElementById("pw-go"), pwClose = document.getElementById("pw-close");
+  function say2(el, text, good) { el.textContent = text || ""; el.classList.toggle("good", !!good); }
+  function authMessage(err, kind) {                                          // 오류를 쉬운 한국어로
+    var code = (err && (err.code || err.error_code)) || "", msg = (err && err.message) || "", st = err && err.status;
+    if (code === "invalid_credentials" || /invalid login credentials/i.test(msg)) return "이메일이나 비밀번호가 맞지 않아요.";
+    if (code === "email_not_confirmed" || /email not confirmed/i.test(msg)) return "아직 이메일 확인이 안 된 계정이에요. 담당 선생님께 알려 주세요.";
+    if (code === "user_banned" || /banned/i.test(msg)) return "사용할 수 없는 계정이에요. 담당 선생님께 알려 주세요.";
+    if (code === "over_request_rate_limit" || code === "over_email_send_rate_limit" || st === 429) return "너무 여러 번 시도했어요. 잠시 뒤에 다시 해 주세요.";
+    if (code === "same_password" || /different from the old/i.test(msg)) return "지금 쓰는 비밀번호와 다른 것으로 바꿔 주세요.";             // (같은 비밀번호의 안내 문구에도 "password should"가 들어 있어서 먼저 확인)
+    if (code === "weak_password" || /password should be at least|weak password|known to be weak/i.test(msg)) return "비밀번호가 너무 약해요. 더 길고 다양한 글자로 만들어 주세요.";
+    if (code === "reauthentication_needed" || code === "session_not_found" || code === "session_expired" || /auth session missing|session.*(expired|missing|not found)/i.test(msg)) return "로그인이 끝났어요. 다시 로그인한 뒤에 해 주세요.";
+    if (st >= 500) return "서버가 잠깐 쉬고 있어요. 조금 뒤에 다시 해 주세요.";
+    if ((err && err.name === "AuthRetryableFetchError") || st === 0 || /failed to fetch|network|시간 초과/i.test(msg)) return "인터넷 연결을 확인해 주세요.";
+    return kind === "pw" ? "비밀번호를 바꾸지 못했어요. 잠시 뒤에 다시 해 주세요." : "로그인하지 못했어요. 잠시 뒤에 다시 해 주세요.";
+  }
+  function reloadNow() { AUTH.reloading = true; window.location.reload(); }
+  function reloadOnce() {                                                    // 저절로 다시 여는 것은 반복되지 않게 (4초 안에는 한 번만). 정말 다시 열면 true
+    if (AUTH.reloading) return true;
+    try { var last = Number(window.sessionStorage.getItem("sunshine-class-reload") || 0); if (Date.now() - last < 4000) return false; window.sessionStorage.setItem("sunshine-class-reload", String(Date.now())); } catch (e) {}
+    reloadNow(); return true;
+  }
+  function closePops() {
+    loginPop.hidden = true; pwPop.hidden = true;
+    loginBtn.setAttribute("aria-expanded", "false"); pwBtn.setAttribute("aria-expanded", "false");
+  }
+  function openLogin() { closePops(); say2(loginMsg, ""); loginPop.hidden = false; loginBtn.setAttribute("aria-expanded", "true"); emailEl.focus(); }
+  function openPw() { closePops(); say2(pwMsg, ""); pw1.value = ""; pw2.value = ""; pwPop.hidden = false; pwBtn.setAttribute("aria-expanded", "true"); pw1.focus(); }
+  loginBtn.addEventListener("click", function () { if (loginPop.hidden) openLogin(); else closePops(); });
+  pwBtn.addEventListener("click", function () { if (pwPop.hidden) openPw(); else closePops(); });
+  loginClose.addEventListener("click", function () { closePops(); loginBtn.focus(); });
+  pwClose.addEventListener("click", function () { closePops(); pwBtn.focus(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && (!loginPop.hidden || !pwPop.hidden)) { var wasLogin = !loginPop.hidden; closePops(); (wasLogin ? loginBtn : pwBtn).focus(); } });
+  document.addEventListener("click", function (e) { if ((!loginPop.hidden || !pwPop.hidden) && acctEl && !acctEl.contains(e.target)) closePops(); });
+
+  loginPop.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var email = emailEl.value.replace(/^\s+|\s+$/g, ""), pw = lpwEl.value;
+    if (!email) { say2(loginMsg, "이메일을 적어 주세요."); emailEl.focus(); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { say2(loginMsg, "이메일 모양이 맞지 않아요. 다시 확인해 주세요."); emailEl.focus(); return; }
+    if (!pw) { say2(loginMsg, "비밀번호를 적어 주세요."); lpwEl.focus(); return; }
+    var c = authClient();
+    if (!c) { say2(loginMsg, "로그인 도구를 불러오지 못했어요. 인터넷을 확인하고 이 화면을 새로 열어 주세요."); return; }
+    loginGo.disabled = true; say2(loginMsg, "로그인하는 중이에요…", true);
+    c.auth.signInWithPassword({ email: email, password: pw }).then(function (r) {
+      if (r && r.error) { say2(loginMsg, authMessage(r.error, "login")); loginGo.disabled = false; lpwEl.value = ""; lpwEl.focus(); return; }
+      lpwEl.value = ""; say2(loginMsg, "로그인했어요!", true); reloadNow();      // 로그인하면 화면을 새로 열어서, 이 사람의 권한으로 처음부터 그림
+    }, function (e) { say2(loginMsg, authMessage(e, "login")); loginGo.disabled = false; });
+  });
+  pwPop.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var a = pw1.value, b = pw2.value, c = authClient();
+    if (a.length < 8) { say2(pwMsg, "비밀번호는 8글자 이상으로 해 주세요."); pw1.focus(); return; }
+    if (a !== b) { say2(pwMsg, "두 칸의 비밀번호가 달라요. 다시 확인해 주세요."); pw2.focus(); return; }
+    if (!c) { say2(pwMsg, "로그인 도구를 불러오지 못했어요. 인터넷을 확인하고 이 화면을 새로 열어 주세요."); return; }
+    pwGo.disabled = true; say2(pwMsg, "바꾸는 중이에요…", true);
+    c.auth.updateUser({ password: a }).then(function (r) {
+      pwGo.disabled = false;
+      if (r && r.error) { say2(pwMsg, authMessage(r.error, "pw")); return; }
+      pw1.value = ""; pw2.value = ""; say2(pwMsg, "비밀번호를 바꿨어요.", true);
+      setTimeout(function () { if (!pwPop.hidden) { closePops(); pwBtn.focus(); } }, 1600);
+    }, function (e) { pwGo.disabled = false; say2(pwMsg, authMessage(e, "pw")); });
+  });
+  outBtn.addEventListener("click", function () {                             // 로그아웃: 이 기기의 로그인만 끝냄 (다른 기기의 로그인은 그대로). 인터넷이 안 되어도 이 기기에서는 끝남
+    var c = authClient(), forget = function () { try { window.localStorage.removeItem(AUTH_KEY); } catch (e) {} };
+    AUTH.reloading = true; outBtn.disabled = true;
+    var done = c ? c.auth.signOut({ scope: "local" }).then(function (r) { if (r && r.error) forget(); }, forget) : (forget(), Promise.resolve());
+    Promise.race([done, new Promise(function (res) { setTimeout(function () { forget(); res(); }, 5000); })]).then(function () { window.location.reload(); });
+  });
+
+  function paintAccount() {
+    var inn = !!AUTH.session, checking = !AUTH.ready && !devLocked;          // 로그인 흔적이 있어서 확인하는 동안에는 단추를 잠깐 감춤
+    loginBtn.hidden = inn || checking; whoEl.hidden = !inn;
+    if (!inn) { noteEl.hidden = true; return; }
+    var m = AUTH.member, u = AUTH.session.user || {};
+    nameEl.textContent = (m && (m.display_name || m.email)) || u.email || "이름 없음";
+    roleEl.textContent = m && m.role ? m.role : "등급 없음";
+    roleEl.className = "acct-role" + (m && m.role ? " r-" + (m.role === "관리자" ? "admin" : m.role === "교사" ? "teacher" : "parent") : " r-none");
+    noteEl.textContent = AUTH.memberFailed ? "등급을 불러오지 못했어요. 인터넷을 확인해 주세요." : (!m ? "회원으로 등록되지 않았어요. 담당 선생님께 알려 주세요." : "");
+    noteEl.hidden = !noteEl.textContent;
+  }
+  function paintHint() { hintEl.hidden = !!AUTH.session || (!AUTH.ready && !devLocked); }       // 로그인하지 않았을 때만 "🔒 로그인하면 더 볼 수 있어요"
+  function applyAccess() {                                                   // 권한에 맞게: 숨김 = 탭이 아예 안 보임 / 보기 = 고치는 단추 숨김 / 고치기 = 모두
+    var lv = TABS.map(function (p) { return levelOf(p[0]); }), i, cur = -1, first = -1;
+    tabEls.forEach(function (t, k) {
+      t.hidden = lv[k] === "숨김";
+      panelEls[k].classList.toggle("ro", lv[k] === "보기");
+      panelEls[k].setAttribute("data-level", lv[k]);
+      if (t.getAttribute("aria-selected") === "true") cur = k;
+      if (first < 0 && !t.hidden) first = k;
+    });
+    if ((cur < 0 || tabEls[cur].hidden) && first >= 0) select(first, false);
+    if (first < 0) panelEls.forEach(function (pn) { pn.hidden = true; });
+    paintAccount(); paintHint();
+    accessWatchers.forEach(function (f) { f(); });
+    birthdayRefresh();
+    var sig = lv.join(",") + "|" + (AUTH.session ? AUTH.session.user.id : "");
+    if (sig !== AUTH.levelSig) {                                              // 누구의 권한인지 알게 되었거나 권한이 바뀌었으니, 서버에서 다시 받음 (그 사람의 증표로)
+      AUTH.levelSig = sig;
+      rosterRefresh(true);                                                    // 명단·반 이름·생일 (그 안에서 달란트도 다시 받음)
+      rosterTabs.forEach(function (t) { if (t.refresh) t.refresh(); });       // 출석·달란트
+      rosterKick();
+    }
+  }
+  function loadMember() {                                                    // 회원 표에서 내 줄(이름·등급)
+    var uid = AUTH.session.user.id;
+    return sbRest("members?select=user_id,email,display_name,role&user_id=eq." + encodeURIComponent(uid), "GET").then(function (rows) {
+      AUTH.member = rows && rows[0] ? rows[0] : null; AUTH.memberFailed = false;
+    }, function (e) {
+      if (e && e.status === 401) { dropSession(); return; }                  // 서버가 이 로그인을 거절함: 로그아웃 상태로 다시 시작
+      AUTH.memberFailed = true;
+    });
+  }
+  function loadPerms() {                                                     // 권한 표 (누구나 읽을 수 있음). 못 읽으면 이전에 받은 것을 그대로 두고, 한 번도 못 받았으면 공과 탭들만
+    return sbRest("tab_permissions?select=tab,audience,level", "GET").then(function (rows) {
+      var m = {};
+      (rows || []).forEach(function (r) { if (r && typeof r.tab === "string" && !(r.tab in Object.prototype) && typeof r.audience === "string") { (m[r.tab] = m[r.tab] || {})[r.audience] = r.level; } });
+      AUTH.perms = m;
+    }, function () {});
+  }
+  function dropSession() {
+    var c = authClient();
+    AUTH.reloading = true;
+    var forget = function () { try { window.localStorage.removeItem(AUTH_KEY); } catch (e) {} };
+    (c ? c.auth.signOut({ scope: "local" }).then(function (r) { if (r && r.error) forget(); }, forget) : (forget(), Promise.resolve())).then(function () { window.location.reload(); });
+  }
+  function refreshAccess() {
+    if (!AUTH.ready) return;
+    (AUTH.session ? loadMember() : Promise.resolve()).then(loadPerms).then(applyAccess);
+  }
+  function watchAuth() {                                                     // 다른 창에서 로그인·로그아웃했거나, 로그인이 끝났을 때
+    var c = authClient();
+    if (!c || !c.auth || typeof c.auth.onAuthStateChange !== "function") return;
+    c.auth.onAuthStateChange(function (event, session) {
+      if (AUTH.reloading || !AUTH.ready) return;
+      var uid = session && session.user ? session.user.id : null;
+      if (event === "SIGNED_OUT" && AUTH.bootUid) reloadOnce();
+      else if (event === "SIGNED_IN" && uid && uid !== AUTH.bootUid) reloadOnce();
+    });
+  }
+  function authBoot() {
+    var c = authClient(), p;
+    try { p = c ? c.auth.getSession().then(function (r) { return { session: (r && r.data && r.data.session) || null, error: r && r.error }; }, function (e) { return { session: null, error: e }; }) : Promise.resolve({ session: null, error: null }); }
+    catch (e) { p = Promise.resolve({ session: null, error: e }); }
+    return p.then(function (r) {
+      AUTH.session = r.session; AUTH.bootUid = r.session ? r.session.user.id : null;
+      var unsure = !c || (!r.session && r.error && ((r.error.name === "AuthRetryableFetchError") || r.error.status === 0));   // 로그인 도구가 없거나 인터넷 문제로 확인을 못 한 경우: 다시 열어도 소용없음
+      if (!r.session && !devLocked && !unsure && reloadOnce()) return;       // 기기에 로그인 흔적은 있었지만 쓸 수 없는 상태: 로그아웃 상태로 다시 시작 (다시 열 수 없으면 그냥 로그아웃 상태로 이어 감)
+      return (r.session ? loadMember() : Promise.resolve()).then(loadPerms).then(function () {
+        if (AUTH.reloading) return;
+        AUTH.ready = true; applyAccess(); watchAuth();
+        setInterval(refreshAccess, 5 * 60 * 1000);                           // 권한을 가끔 다시 읽음 (관리자가 바꿨을 수 있으니)
+        document.addEventListener("visibilitychange", function () { if (!document.hidden) refreshAccess(); });
+      });
+    }).catch(function () { AUTH.ready = true; applyAccess(); });
+  }
+  [5, 6, 7].forEach(function (k) { tabEls[k].hidden = true; });              // 권한을 알기 전까지 출석·달란트·반 관리 탭은 숨김
+  paintAccount(); paintHint();
+  authBoot();
 
   select(0, false);
 })();
