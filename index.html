@@ -693,7 +693,7 @@
 
   /* ===== 찬양 ===== */
   [role="tabpanel"].praise:not([hidden]) { display: block; min-height: 0; padding: 0; border: none; text-align: left; }
-  .pr-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 20px; }
+  .pr-cards { display: grid; grid-template-columns: 1fr; gap: 28px; }                  /* 찬양 1, 찬양 2는 언제나 한 줄에 하나씩 (전체화면 여부와 상관없이) */
   .pr-card { display: flex; flex-direction: column; padding: clamp(18px, 2.6vw, 32px); border-radius: 28px; background: #FFF1DC; }
   .pr-tag { align-self: flex-start; margin: 0 0 8px; padding: 4px 18px; border-radius: 999px; background: var(--ink); color: var(--bg); font-size: clamp(18px, 2.2vw, 24px); font-weight: 800; }
   .pr-title { margin: 0 0 12px; font-size: clamp(28px, 3.4vw, 56px); font-weight: 900; line-height: 1.15; letter-spacing: -0.02em; white-space: nowrap; }
@@ -966,8 +966,70 @@
   .manage.ro .mg-name, .manage.ro .mg-cname { border-bottom-style: solid; border-bottom-color: transparent; cursor: default; }
   @media (max-width: 560px) { .acct-btn { padding: 4px 12px; font-size: 17px; } .acct-name { font-size: 18px; } }
 
-  /* ----- 찬양: 전체화면에서는 한 줄에 하나씩, 영상이 카드 폭을 꽉 채워 크게 (전체화면이 아닐 때의 모양은 그대로) ----- */
-  html.is-fs .pr-cards { grid-template-columns: 1fr; gap: 28px; }
+
+  /* ----- 회원 관리 (관리자에게만 보이는 탭) ----- */
+  [role="tabpanel"].members:not([hidden]) { display: block; min-height: 0; padding: 0; border: none; text-align: left; }
+  .members [hidden] { display: none !important; }
+  .mb-h { margin: 0 0 6px; font-size: clamp(28px, 4vw, 40px); font-weight: 900; }
+  .mb-help { margin: 0 0 16px; font-size: clamp(16px, 2.1vw, 22px); font-weight: 700; color: var(--ink-soft); line-height: 1.5; word-break: keep-all; }
+  .mb-card { margin: 0 0 20px; padding: 18px 20px 20px; border-radius: 22px; background: #FFF8E6; border: 3px solid #F2C94C; }
+  .mb-t { margin: 0 0 8px; font-size: clamp(22px, 3vw, 30px); font-weight: 900; }
+  .mb-no { color: #B7791F; }
+  .mb-sub { margin: 0 0 12px; font-size: clamp(15px, 1.9vw, 19px); font-weight: 700; color: var(--ink-soft); line-height: 1.5; word-break: keep-all; }
+  .mb-form { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) minmax(0, 0.8fr) auto; gap: 12px; align-items: end; }
+  .mb-f { display: block; min-width: 0; }
+  .mb-fl { display: block; margin: 0 0 4px 2px; font-size: clamp(15px, 1.9vw, 19px); font-weight: 800; color: var(--ink-soft); }
+  .mb-in { display: block; width: 100%; min-height: 56px; padding: 0 14px; box-sizing: border-box; font: inherit; font-size: clamp(18px, 2.3vw, 22px); color: var(--ink); background: #FFFFFF; border: 3px solid rgba(44, 62, 80, 0.35); border-radius: 16px; }
+  .mb-in:focus { outline: 3px solid var(--sun); border-color: var(--ink); }
+  .mb-in:disabled { background: #EFEFEF; color: var(--ink-soft); }
+  .mb-btn { min-height: 56px; padding: 0 22px; font: inherit; font-size: clamp(18px, 2.3vw, 22px); font-weight: 900; color: #FFFFFF; background: #2E9E5B; border: 3px solid #2E9E5B; border-radius: 16px; cursor: pointer; touch-action: manipulation; }
+  .mb-btn:active { background: #258049; }
+  .mb-btn:disabled { opacity: 0.55; cursor: default; }
+  .mb-btn:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+  .mb-btn.mb-alt { color: var(--ink); background: #FFFFFF; border-color: rgba(44, 62, 80, 0.35); }
+  .mb-btn.mb-warn { color: #8A5A00; background: #FFF0B8; border-color: #F2C94C; }
+  .mb-btn.mb-danger { color: #B23A35; background: #FDE0DE; border-color: #E0524D; }
+  .mb-btn.mb-sm { min-height: 48px; padding: 0 16px; font-size: clamp(16px, 2vw, 19px); }
+  .mb-ask { margin: 12px 0 0; padding: 14px 16px; border-radius: 16px; background: #FDE0DE; border: 3px solid #E0524D; }
+  .mb-ask-q { margin: 0 0 10px; font-size: clamp(18px, 2.3vw, 22px); font-weight: 800; line-height: 1.5; word-break: keep-all; }
+  .mb-ask-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  .mb-msg { min-height: 1.5em; margin: 8px 2px 0; font-size: clamp(16px, 2vw, 20px); font-weight: 800; color: #1F7A46; line-height: 1.5; word-break: keep-all; }
+  .mb-msg.bad { color: #B23A35; }
+  .mb-box { margin: 12px 0 0; padding: 14px 16px 16px; border-radius: 16px; background: #E6F0FA; border: 3px solid #7FB2E5; }
+  .mb-box-t { margin: 0 0 8px; font-size: clamp(16px, 2vw, 20px); font-weight: 800; }
+  .mb-text { display: block; width: 100%; min-height: 150px; padding: 12px 14px; box-sizing: border-box; font: inherit; font-size: clamp(17px, 2.1vw, 20px); line-height: 1.6; color: var(--ink); background: #FFFFFF; border: 3px solid rgba(44, 62, 80, 0.35); border-radius: 14px; resize: vertical; }
+  .mb-box-btns { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 0; }
+  .mb-small { margin: 6px 2px 0; font-size: 15px; font-weight: 700; color: var(--ink-soft); line-height: 1.5; word-break: keep-all; }
+  .mb-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .mb-row { padding: 14px 16px; border-radius: 18px; background: #FFFFFF; border: 3px solid rgba(44, 62, 80, 0.16); }
+  .mb-row.me { border-color: #7A1F3D; }
+  .mb-r1 { display: flex; gap: 10px; align-items: center; }
+  .mb-r1 .mb-rname { flex: 1 1 auto; width: auto; min-width: 0; font-weight: 900; }
+  .mb-r2 { display: flex; flex-wrap: wrap; align-items: end; gap: 10px 16px; margin: 8px 0 0; }
+  .mb-remail { flex: 1 1 220px; min-width: 0; font-size: clamp(16px, 2vw, 19px); font-weight: 700; color: var(--ink-soft); overflow-wrap: anywhere; }
+  .mb-rrole-l { flex: 0 0 auto; }
+  .mb-rrole { min-width: 140px; }
+  .mb-r3 { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 10px 0 0; }
+  .mb-mine { font-size: 15px; font-weight: 800; color: #7A1F3D; line-height: 1.5; word-break: keep-all; }
+  .mb-empty { padding: 14px; border-radius: 16px; background: #FFFFFF; font-size: clamp(16px, 2vw, 20px); font-weight: 700; color: var(--ink-soft); text-align: center; }
+  .mb-retry { margin: 10px 0 0; }
+  .mb-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .mb-pt { width: 100%; min-width: 520px; border-collapse: separate; border-spacing: 0 8px; }
+  .mb-pt th { padding: 0 6px 2px; font-size: clamp(15px, 1.9vw, 19px); font-weight: 800; color: var(--ink-soft); text-align: left; }
+  .mb-pt th[scope="row"] { padding: 0 10px 0 0; font-size: clamp(17px, 2.1vw, 21px); color: var(--ink); white-space: nowrap; }
+  .mb-pt td { padding: 0 6px; }
+  .mb-perm { min-height: 50px; font-weight: 800; }
+  .mb-perm.saving { opacity: 0.6; }
+  .mb-perm.saved { border-color: #2E9E5B; }
+  .mb-perm.bad { border-color: #E0524D; }
+  .mb-na { font-size: 14px; font-weight: 700; color: var(--ink-soft); }
+  .mb-note { margin: 12px 2px 0; font-size: clamp(14px, 1.8vw, 17px); font-weight: 700; color: var(--ink-soft); line-height: 1.5; word-break: keep-all; }
+  @media (max-width: 760px) { .mb-form { grid-template-columns: 1fr; } .mb-go { width: 100%; } }
+  /* 탭이 9개 보일 때(관리자)만: 줄이 좁으면 글자와 여백을 조금 줄여 칸을 넘치지 않게. 8개일 때의 모양은 그대로 */
+  @container (max-width: 820px) {
+    [role="tablist"].many [role="tab"] { padding-left: 2px; padding-right: 2px; font-size: clamp(12px, 1.6cqw, 24px); }
+    [role="tablist"].many [role="tab"] .en { font-size: clamp(9px, 1.1vw, 14px); }
+  }
 </style>
 </head>
 <body>
@@ -1043,7 +1105,8 @@
     ["찬양", "Praise"],
     ["출석", "Attendance"],
     ["달란트", "Talents"],
-    ["반 관리", "Class Manager"]
+    ["반 관리", "Class Manager"],
+    ["회원 관리", ""]                                                        // 관리자에게만 보이는 탭 (영문 줄 없음)
   ];
 
   function step(stage, stageEn, what, whatEn, mins, minsEn) {
@@ -3000,6 +3063,344 @@
     rosterStart();                                                                                    // 페이지를 열면 서버에서 명단과 반 이름을 불러옴
   }
 
+  // ===================== 회원 관리 (관리자에게만 보이는 탭) =====================
+  // 초대 · 비밀번호 초기화 · 내보내기는 Supabase의 manage-member 함수가 합니다. (계정을 만들고 지우려면 비밀 키가 필요한데, 비밀 키는 그 함수 안에만 있고 이 페이지에는 없습니다.)
+  // 이름 · 등급 고치기와 탭 권한 저장은 이 페이지가 회원 표 · 권한 표에 직접 씁니다. (관리자만 쓸 수 있도록 Supabase의 보안 규칙이 막아 줍니다. 이 페이지는 보안 규칙을 바꾸지 않습니다.)
+  // 임시 비밀번호는 메시지 상자에만 잠시 있고, 기기와 서버 어디에도 저장하지 않습니다. 상자를 닫거나 다른 탭으로 가면 지워집니다.
+  var MEMBERS_HTML =
+    '<section class="mb">' +
+      '<h2 class="mb-h">회원 관리</h2>' +
+      '<p class="mb-help">관리자만 볼 수 있는 화면이에요. 계정을 만들고, 회원의 이름과 등급을 고치고, 탭마다 누가 볼 수 있는지 정해요.</p>' +
+      '<section class="mb-card mb-c1" aria-labelledby="mb-t1">' +
+        '<h3 class="mb-t" id="mb-t1"><span class="mb-no" aria-hidden="true">①</span> 초대하기</h3>' +
+        '<div class="mb-form">' +
+          '<label class="mb-f"><span class="mb-fl">이름</span><input class="mb-in mb-name" type="text" maxlength="30" placeholder="예: 다람쥐 어머니" autocomplete="off" spellcheck="false"></label>' +
+          '<label class="mb-f"><span class="mb-fl">이메일</span><input class="mb-in mb-email" type="email" inputmode="email" maxlength="254" placeholder="예: sunny@gmail.com" autocomplete="off" autocapitalize="none" spellcheck="false"></label>' +
+          '<label class="mb-f"><span class="mb-fl">등급</span><select class="mb-in mb-role"><option value="부모">부모</option><option value="교사">교사</option><option value="관리자">관리자</option></select></label>' +
+          '<button type="button" class="mb-btn mb-go">초대하기</button>' +
+        '</div>' +
+        '<div class="mb-ask" role="group" hidden></div>' +
+        '<p class="mb-msg mb-imsg" role="status" aria-live="polite"></p>' +
+        '<div class="mb-host" hidden></div>' +
+      '</section>' +
+      '<section class="mb-card mb-c2" aria-labelledby="mb-t2">' +
+        '<h3 class="mb-t" id="mb-t2"><span class="mb-no" aria-hidden="true">②</span> 회원 목록</h3>' +
+        '<p class="mb-sub">이름을 고치거나, 등급을 바꾸거나, 비밀번호를 새로 만들거나, 내보낼 수 있어요.</p>' +
+        '<p class="mb-msg mb-lmsg" role="status" aria-live="polite"></p>' +
+        '<ul class="mb-list"></ul>' +
+        '<button type="button" class="mb-btn mb-alt mb-retry mb-retry-list" hidden>다시 불러오기</button>' +
+      '</section>' +
+      '<section class="mb-card mb-c3" aria-labelledby="mb-t3">' +
+        '<h3 class="mb-t" id="mb-t3"><span class="mb-no" aria-hidden="true">③</span> 탭 권한</h3>' +
+        '<p class="mb-sub">탭마다 누구에게 어떻게 보여 줄지 골라요. 숨김은 그 탭이 아예 안 보이고, 보기는 보기만 되고, 고치기는 고칠 수도 있어요. 고르면 바로 저장돼요.</p>' +
+        '<div class="mb-perms"></div>' +
+        '<p class="mb-msg mb-pmsg" role="status" aria-live="polite"></p>' +
+        '<button type="button" class="mb-btn mb-alt mb-retry mb-retry-perms" hidden>다시 불러오기</button>' +
+        '<p class="mb-note">관리자는 언제나 모든 탭을 씁니다. 바꾼 권한은 다른 기기에서 새로고침하면 적용돼요.</p>' +
+      '</section>' +
+    '</section>';
+
+  function initMembers(root) {
+    var $ = function (sel) { return root.querySelector(sel); };
+    var ROLES = ["부모", "교사", "관리자"], RANK = { "부모": 0, "교사": 1, "관리자": 2 };
+    var PERM_TABS = ["공과", "성경 이야기", "퀴즈", "짝 맞추기", "찬양", "커리큘럼 홈", "출석", "달란트", "반 관리"];
+    var EDIT_TABS = ["출석", "달란트", "반 관리"], AUDIENCES = ["누구나", "부모", "교사"], LEVELS = ["숨김", "보기", "고치기"];
+    var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/, ASK_GUARD_MS = 300;
+    var inName = $(".mb-name"), inMail = $(".mb-email"), inRole = $(".mb-role"), goBtn = $(".mb-go"), inviteAsk = $(".mb-c1 > .mb-ask"), inviteMsg = $(".mb-imsg"), inviteHost = $(".mb-c1 > .mb-host");
+    var listEl = $(".mb-list"), listMsg = $(".mb-lmsg"), listRetry = $(".mb-retry-list"), permsEl = $(".mb-perms"), permsMsg = $(".mb-pmsg"), permsRetry = $(".mb-retry-perms");
+    var members = [], perms = {}, inviting = false, openBoxes = [];
+
+    function mk(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; }
+    function say(el, text, bad) { el.textContent = text || ""; el.classList.toggle("bad", !!bad); }
+    function myId() { return AUTH.session && AUTH.session.user ? AUTH.session.user.id : null; }
+    function whoIs(m) { return (m && (m.display_name || m.email)) || "이 회원"; }
+    function tidy(s) { return String(s || "").trim().replace(/\s+/g, " "); }
+
+    // ---- 서버와 이야기하기: 로그인한 관리자의 증표로. 비밀 키는 쓰지 않음 ----
+    function send(url, method, body, prefer) {
+      return authToken().then(function (tok) {
+        if (!tok) { var e0 = new Error("로그인 필요"); e0.status = 401; throw e0; }
+        var h = { "apikey": SB_KEY, "Content-Type": "application/json", "Authorization": "Bearer " + tok };
+        if (prefer) h["Prefer"] = prefer;
+        return sbFetch(url, { method: method, headers: h, body: body !== undefined ? JSON.stringify(body) : undefined, cache: "no-store" });
+      }).then(function (res) {
+        return res.text().then(function (t) {
+          var j = null; try { j = t ? JSON.parse(t) : null; } catch (er) {}
+          if (!res.ok) { var e = new Error("HTTP " + res.status); e.status = res.status; e.body = j; throw e; }
+          return j;
+        });
+      });
+    }
+    function rest(path, method, body, prefer) { return send(SB_URL + "/rest/v1/" + path, method, body, prefer); }
+    function callFn(payload) { return send(SB_URL + "/functions/v1/manage-member", "POST", payload); }
+    function failText(e, fallback) {                                         // 오류를 쉬운 한국어로
+      var st = e && e.status, b = e && e.body, m = b && typeof b.error === "string" ? b.error : "";
+      if (st === 401) return "로그인이 끝났어요. 다시 로그인한 뒤에 해 주세요.";
+      if (m) return m;                                                        // manage-member 함수가 쉬운 말로 알려 준 문장
+      if (st === 403) return "관리자만 할 수 있어요.";
+      if (st === 404) return "그 기능을 찾지 못했어요. 담당 선생님께 알려 주세요.";
+      if (st >= 500) return "서버가 잠깐 쉬고 있어요. 조금 뒤에 다시 해 주세요.";
+      if (!st) return /시간 초과/.test((e && e.message) || "") ? "응답이 오지 않았어요. 일이 끝났을 수도 있으니 회원 목록을 확인해 주세요." : "인터넷 연결을 확인해 주세요.";
+      return fallback;
+    }
+    function timedOut(e) { return !!e && !e.status && /시간 초과/.test(e.message || ""); }
+
+    // ---- 한 번 더 묻기: "정말 ○○할까요?" + [네] [아니요] ----
+    function askBar(host, question, yesLabel, onYes, onNo) {
+      cancelAsk(host);
+      var q = mk("p", "mb-ask-q", question), btns = mk("div", "mb-ask-btns"), yes = mk("button", "mb-btn mb-yes", yesLabel), no = mk("button", "mb-btn mb-alt mb-no", "아니요"), at = Date.now();
+      yes.type = "button"; no.type = "button";
+      btns.appendChild(yes); btns.appendChild(no); host.appendChild(q); host.appendChild(btns); host.hidden = false; host._no = onNo || null;
+      yes.addEventListener("click", function () { if (Date.now() - at < ASK_GUARD_MS) return; closeAsk(host); onYes(); });   // 실수로 빠르게 두 번 눌러도 바로 실행되지 않게
+      no.addEventListener("click", function () { cancelAsk(host); });
+    }
+    function closeAsk(host) { host.hidden = true; host.innerHTML = ""; host._no = null; }
+    function cancelAsk(host) { var f = host._no; if (!host.hidden) { closeAsk(host); if (f) f(); } }
+
+    // ---- 보낼 메시지 상자: 임시 비밀번호는 여기에만 있음 (닫거나 다른 탭으로 가면 지움) ----
+    function pageAddress() { try { return String(window.location.href).split("#")[0]; } catch (e) { return ""; } }
+    function buildMessage(kind, name, email, pw) {
+      var first = kind === "reset" ? name + "님, 우리 반 수업 도구의 비밀번호를 새로 만들었어요." : name + "님, 우리 반 수업 도구에 초대합니다.";
+      return first + "\n주소: " + pageAddress() + "\n이메일: " + email + "  임시 비밀번호: " + pw + "\n처음 로그인하시면 오른쪽 위 ‘비밀번호 바꾸기’로 바꿔 주세요.";
+    }
+    function wipeBox(box) {
+      var ta = box.querySelector(".mb-text"); if (ta) ta.value = "";
+      if (box.parentNode) box.parentNode.removeChild(box);
+      var k = openBoxes.indexOf(box); if (k > -1) openBoxes.splice(k, 1);
+    }
+    function hideEmptyHosts() { Array.prototype.forEach.call(root.querySelectorAll(".mb-host"), function (h) { if (!h.querySelector(".mb-box")) h.hidden = true; }); }
+    function wipeAll() { openBoxes.slice().forEach(wipeBox); hideEmptyHosts(); }
+    function copyText(text, ta) {
+      return new Promise(function (resolve) {
+        function legacy() { try { ta.focus(); ta.select(); resolve(!!(document.execCommand && document.execCommand("copy"))); } catch (e) { resolve(false); } }
+        try { if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") { navigator.clipboard.writeText(text).then(function () { resolve(true); }, legacy); return; } } catch (e) {}
+        legacy();
+      });
+    }
+    function showBox(host, title, text) {
+      Array.prototype.slice.call(host.querySelectorAll(".mb-box")).forEach(wipeBox);
+      var box = mk("div", "mb-box"), ta = mk("textarea", "mb-text"), btns = mk("div", "mb-box-btns"), copy = mk("button", "mb-btn mb-copy", "메시지 복사"), close = mk("button", "mb-btn mb-alt mb-close", "닫기"), cmsg = mk("p", "mb-msg mb-cmsg");
+      cmsg.setAttribute("role", "status"); cmsg.setAttribute("aria-live", "polite");
+      ta.rows = 6; ta.value = text; ta.setAttribute("spellcheck", "false"); ta.setAttribute("autocomplete", "off"); ta.setAttribute("aria-label", "보낼 메시지");
+      copy.type = "button"; close.type = "button"; btns.appendChild(copy); btns.appendChild(close);
+      box.appendChild(mk("p", "mb-box-t", title)); box.appendChild(ta); box.appendChild(btns); box.appendChild(cmsg);
+      box.appendChild(mk("p", "mb-small", "카카오톡이나 문자로 그분께 1:1로 보내 주세요. 이 창을 닫으면 비밀번호는 다시 볼 수 없어요."));
+      copy.addEventListener("click", function () {
+        copyText(ta.value, ta).then(function (ok) { say(cmsg, ok ? "복사했어요. 카카오톡이나 문자에 붙여 넣어 보내 주세요." : "복사하지 못했어요. 위 글을 길게 눌러서 직접 복사해 주세요.", !ok); if (!ok) { try { ta.select(); } catch (e) {} } });
+      });
+      close.addEventListener("click", function () { wipeBox(box); hideEmptyHosts(); });
+      host.appendChild(box); host.hidden = false; openBoxes.push(box);
+      try { if (box.scrollIntoView) box.scrollIntoView({ block: "nearest" }); } catch (e) {}
+    }
+
+    // ---- ① 초대하기 ----
+    function readInvite() {
+      var name = tidy(inName.value), email = String(inMail.value || "").trim().toLowerCase(), role = inRole.value;
+      if (!name) return say(inviteMsg, "이름을 적어 주세요.", true);
+      if (name.length > 30) return say(inviteMsg, "이름은 30글자까지 쓸 수 있어요.", true);
+      if (!email) return say(inviteMsg, "이메일을 적어 주세요.", true);
+      if (email.length > 254 || !EMAIL_RE.test(email)) return say(inviteMsg, "이메일 모양이 맞지 않아요. 다시 확인해 주세요.", true);
+      if (ROLES.indexOf(role) < 0) return say(inviteMsg, "등급을 골라 주세요.", true);
+      return { name: name, email: email, role: role };
+    }
+    function doInvite(v) {
+      if (inviting) return;
+      inviting = true; goBtn.disabled = true; goBtn.textContent = "초대하는 중…"; say(inviteMsg, "");
+      callFn({ action: "invite", name: v.name, email: v.email, role: v.role }).then(function (r) {
+        if (!r || r.ok !== true || typeof r.tempPassword !== "string") { var bad = new Error("답이 이상해요"); bad.status = 500; throw bad; }
+        showBox(inviteHost, (r.name || v.name) + "님께 보낼 메시지", buildMessage("invite", r.name || v.name, r.email || v.email, r.tempPassword));
+        inName.value = ""; inMail.value = ""; inRole.value = "부모";
+        say(inviteMsg, "초대했어요. 아래 메시지를 그분께 보내 주세요.");
+        loadMembers();
+      }).catch(function (e) {
+        say(inviteMsg, failText(e, "초대하지 못했어요. 잠시 뒤에 다시 해 주세요."), true);
+        if (timedOut(e)) loadMembers();
+      }).then(function () { inviting = false; goBtn.disabled = false; goBtn.textContent = "초대하기"; });
+    }
+    goBtn.addEventListener("click", function () {
+      if (inviting) return;
+      cancelAsk(inviteAsk); say(inviteMsg, "");
+      var v = readInvite(); if (!v) return;
+      if (v.role === "부모") doInvite(v);
+      else askBar(inviteAsk, "정말 " + v.role + "로 초대할까요?", "네, 초대할게요", function () { doInvite(v); });
+    });
+    [inName, inMail, inRole].forEach(function (n) { n.addEventListener("input", function () { cancelAsk(inviteAsk); }); n.addEventListener("change", function () { cancelAsk(inviteAsk); }); });
+
+    // ---- ② 회원 목록 ----
+    function buildRow(m) {
+      var li = mk("li", "mb-row"), mine = m.user_id === myId(), busy = false;
+      li.setAttribute("data-uid", m.user_id); if (mine) li.classList.add("me");
+      var r1 = mk("div", "mb-r1"), nameIn = mk("input", "mb-in mb-rname"), saveBtn = mk("button", "mb-btn mb-sm mb-save", "이름 저장");
+      nameIn.type = "text"; nameIn.maxLength = 30; nameIn.value = m.display_name || ""; nameIn.placeholder = "이름 없음"; nameIn.setAttribute("aria-label", "이름"); nameIn.setAttribute("autocomplete", "off"); nameIn.setAttribute("spellcheck", "false");
+      saveBtn.type = "button"; saveBtn.hidden = true; r1.appendChild(nameIn); r1.appendChild(saveBtn);
+      var r2 = mk("div", "mb-r2"), mail = mk("span", "mb-remail", m.email || ""), lab = mk("label", "mb-rrole-l"), sel = mk("select", "mb-in mb-rrole");
+      ROLES.forEach(function (r) { var o = mk("option", "", r); o.value = r; sel.appendChild(o); });
+      sel.value = m.role; sel.setAttribute("aria-label", "등급"); if (mine) sel.disabled = true;
+      lab.appendChild(mk("span", "mb-fl", "등급")); lab.appendChild(sel); r2.appendChild(mail); r2.appendChild(lab);
+      var r3 = mk("div", "mb-r3"), resetBtn = mk("button", "mb-btn mb-sm mb-warn mb-reset", "비밀번호 초기화"), outBtn = mk("button", "mb-btn mb-sm mb-danger mb-out", "내보내기");
+      var mineNote = mk("span", "mb-mine", "내 줄이에요. 내 등급 바꾸기, 비밀번호 초기화, 내보내기는 여기서 할 수 없어요.");
+      resetBtn.type = "button"; outBtn.type = "button";
+      if (mine) { resetBtn.hidden = true; outBtn.hidden = true; } else mineNote.hidden = true;
+      r3.appendChild(resetBtn); r3.appendChild(outBtn); r3.appendChild(mineNote);
+      var askEl = mk("div", "mb-ask"), msg = mk("p", "mb-msg mb-rmsg"), host = mk("div", "mb-host");
+      askEl.setAttribute("role", "group"); askEl.hidden = true; host.hidden = true; msg.setAttribute("role", "status"); msg.setAttribute("aria-live", "polite");
+      li.appendChild(r1); li.appendChild(r2); li.appendChild(r3); li.appendChild(askEl); li.appendChild(msg); li.appendChild(host);
+
+      function setBusy(b) { busy = b; li.classList.toggle("busy", b); [nameIn, saveBtn, resetBtn, outBtn].forEach(function (x) { x.disabled = b; }); sel.disabled = b || mine; }
+      function noRows() { var e = new Error("바뀐 줄이 없어요"); e.noRows = true; return e; }
+      function nameDirty() { saveBtn.hidden = tidy(nameIn.value) === (m.display_name || ""); }
+      nameIn.addEventListener("input", nameDirty);
+      nameIn.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); saveName(); } });
+      saveBtn.addEventListener("click", saveName);
+      function saveName() {
+        if (busy) return;
+        var n = tidy(nameIn.value);
+        if (!n) return say(msg, "이름을 적어 주세요.", true);
+        if (n.length > 30) return say(msg, "이름은 30글자까지 쓸 수 있어요.", true);
+        if (n === (m.display_name || "")) { saveBtn.hidden = true; return; }
+        setBusy(true); say(msg, "저장하는 중…");
+        rest("members?user_id=eq." + encodeURIComponent(m.user_id), "PATCH", { display_name: n }, "return=representation").then(function (rows) {
+          if (!rows || !rows.length) throw noRows();
+          m.display_name = rows[0].display_name || n; nameIn.value = m.display_name; saveBtn.hidden = true; say(msg, "이름을 저장했어요.");
+        }).catch(function (e) { say(msg, e && e.noRows ? "저장하지 못했어요. 관리자만 고칠 수 있어요." : failText(e, "이름을 저장하지 못했어요. 잠시 뒤에 다시 해 주세요."), true); }).then(function () { setBusy(false); });
+      }
+      sel.addEventListener("change", function () {
+        var to = sel.value;
+        if (mine || busy || ROLES.indexOf(to) < 0) { sel.value = m.role; return; }
+        cancelAsk(askEl); sel.value = to; say(msg, "");                       // (이전 질문을 취소하면 선택칸이 옛 값으로 돌아가므로, 새로 고른 값을 다시 지켜 줌)
+        if (to === m.role) return;
+        function apply() {
+          setBusy(true); say(msg, "바꾸는 중…");
+          rest("members?user_id=eq." + encodeURIComponent(m.user_id), "PATCH", { role: to }, "return=representation").then(function (rows) {
+            if (!rows || !rows.length) throw noRows();
+            m.role = rows[0].role || to; sel.value = m.role; say(msg, whoIs(m) + "님의 등급을 " + m.role + "로 바꿨어요.");
+          }).catch(function (e) {
+            sel.value = m.role;
+            say(msg, e && e.noRows ? "바꾸지 못했어요. 관리자만 바꿀 수 있어요." : e && e.status === 400 ? "등급을 바꾸지 못했어요. 관리자가 한 명도 남지 않게 되는 변경은 할 수 없어요." : failText(e, "등급을 바꾸지 못했어요. 잠시 뒤에 다시 해 주세요."), true);
+          }).then(function () { setBusy(false); });
+        }
+        if (RANK[to] > RANK[m.role]) askBar(askEl, "정말 " + whoIs(m) + "님을 " + to + "로 올릴까요?", "네, 올릴게요", apply, function () { sel.value = m.role; });
+        else apply();
+      });
+      resetBtn.addEventListener("click", function () {
+        if (mine || busy) return;
+        say(msg, "");
+        askBar(askEl, "정말 " + whoIs(m) + "님의 비밀번호를 초기화할까요? 지금 쓰는 비밀번호는 쓸 수 없게 돼요.", "네, 초기화할게요", function () {
+          setBusy(true); say(msg, "새 비밀번호를 만드는 중…");
+          callFn({ action: "reset", user_id: m.user_id }).then(function (r) {
+            if (!r || r.ok !== true || typeof r.tempPassword !== "string") { var bad = new Error("답이 이상해요"); bad.status = 500; throw bad; }
+            showBox(host, whoIs(m) + "님께 보낼 메시지", buildMessage("reset", r.name || whoIs(m), r.email || m.email, r.tempPassword));
+            say(msg, "새 임시 비밀번호를 만들었어요. 아래 메시지를 그분께 보내 주세요.");
+          }).catch(function (e) { say(msg, failText(e, "비밀번호를 초기화하지 못했어요. 잠시 뒤에 다시 해 주세요."), true); }).then(function () { setBusy(false); });
+        });
+      });
+      outBtn.addEventListener("click", function () {
+        if (mine || busy) return;
+        say(msg, "");
+        askBar(askEl, "정말 " + whoIs(m) + "님을 내보낼까요? 계정이 지워져서 다시 로그인할 수 없어요.", "네, 내보낼게요", function () {
+          setBusy(true); say(msg, "내보내는 중…");
+          callFn({ action: "remove", user_id: m.user_id }).then(function () {
+            members = members.filter(function (x) { return x.user_id !== m.user_id; });
+            Array.prototype.slice.call(li.querySelectorAll(".mb-box")).forEach(wipeBox);
+            if (li.parentNode) li.parentNode.removeChild(li);
+            say(listMsg, whoIs(m) + "님을 내보냈어요.");
+          }).catch(function (e) { say(msg, failText(e, "내보내지 못했어요. 잠시 뒤에 다시 해 주세요."), true); if (timedOut(e)) loadMembers(); }).then(function () { setBusy(false); });
+        });
+      });
+      return li;
+    }
+    function renderList() {
+      var keep = {};
+      Array.prototype.forEach.call(listEl.querySelectorAll(".mb-box"), function (b) { var li = b.closest("li"); if (li) keep[li.getAttribute("data-uid")] = b; });   // 열려 있는 메시지 상자는 그대로 둠
+      listEl.innerHTML = "";
+      if (!members.length) { var li0 = mk("li", "mb-empty", "아직 회원이 없어요."); listEl.appendChild(li0); }
+      members.forEach(function (m) {
+        var li = buildRow(m); listEl.appendChild(li);
+        if (keep[m.user_id]) { li.querySelector(".mb-host").appendChild(keep[m.user_id]); li.querySelector(".mb-host").hidden = false; delete keep[m.user_id]; }
+      });
+      Object.keys(keep).forEach(function (uid) { wipeBox(keep[uid]); });
+    }
+    function loadMembers() {
+      listRetry.hidden = true;
+      if (!members.length) say(listMsg, "불러오는 중…");
+      return rest("members?select=user_id,email,display_name,role,created_at&order=created_at.asc", "GET").then(function (rows) {
+        members = (rows || []).filter(function (r) { return r && typeof r.user_id === "string" && ROLES.indexOf(r.role) > -1; });
+        say(listMsg, ""); renderList();
+      }, function (e) {
+        say(listMsg, e && e.status === 401 ? failText(e) : "회원 목록을 불러오지 못했어요. 인터넷을 확인한 뒤 다시 불러와 주세요.", true); listRetry.hidden = false;
+      });
+    }
+    listRetry.addEventListener("click", function () { loadMembers(); });
+
+    // ---- ③ 탭 권한 ----
+    function permOf(tab, aud) { var v = perms[tab] && perms[tab][aud]; return LEVELS.indexOf(v) > -1 ? v : "숨김"; }   // 표에 없는 조합은 숨김
+    function renderPerms() {
+      permsEl.innerHTML = "";
+      var wrap = mk("div", "mb-scroll"), table = mk("table", "mb-pt"), head = mk("tr"), body = mk("tbody");
+      table.setAttribute("aria-label", "탭 권한");
+      var th0 = mk("th", "", "탭"); th0.setAttribute("scope", "col"); head.appendChild(th0);
+      AUDIENCES.forEach(function (a) { var th = mk("th", "", a); th.setAttribute("scope", "col"); head.appendChild(th); });
+      var thead = mk("thead"); thead.appendChild(head); table.appendChild(thead);
+      PERM_TABS.forEach(function (tab) {
+        var tr = mk("tr"), rh = mk("th", "", tab); rh.setAttribute("scope", "row");
+        if (tab === "커리큘럼 홈") rh.appendChild(mk("span", "mb-na", " (이 도구에는 아직 없어요)"));
+        tr.appendChild(rh);
+        AUDIENCES.forEach(function (aud) {
+          var td = mk("td"), sel = mk("select", "mb-in mb-perm"), cur = permOf(tab, aud), opts = ["숨김", "보기"];
+          if (EDIT_TABS.indexOf(tab) > -1 && aud !== "누구나") opts.push("고치기");   // 고칠 것이 없는 탭, 그리고 누구나 칸의 출석·달란트·반 관리는 숨김 · 보기만
+          if (opts.indexOf(cur) < 0) opts.push(cur);
+          opts.forEach(function (o) { var op = mk("option", "", o); op.value = o; sel.appendChild(op); });
+          sel.value = cur; sel.setAttribute("data-tab", tab); sel.setAttribute("data-aud", aud); sel.setAttribute("data-prev", cur); sel.setAttribute("aria-label", tab + " · " + aud);
+          sel.addEventListener("change", function () { savePerm(tab, aud, sel); });
+          td.appendChild(sel); tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+      table.appendChild(body); wrap.appendChild(table); permsEl.appendChild(wrap);
+    }
+    function savePerm(tab, aud, sel) {
+      var prev = sel.getAttribute("data-prev"), val = sel.value;
+      if (val === prev) return;
+      sel.disabled = true; sel.className = "mb-in mb-perm saving"; say(permsMsg, "저장하는 중…");
+      rest("tab_permissions?tab=eq." + encodeURIComponent(tab) + "&audience=eq." + encodeURIComponent(aud), "PATCH", { level: val }, "return=representation").then(function (rows) {
+        if (rows && rows.length) return rows;
+        return rest("tab_permissions", "POST", { tab: tab, audience: aud, level: val }, "return=representation");   // 표에 그 줄이 없었으면 새로 만듦
+      }).then(function (rows) {
+        if (!rows || !rows.length) { var e = new Error("바뀐 줄이 없어요"); e.noRows = true; throw e; }
+        (perms[tab] = perms[tab] || {})[aud] = val;
+        if (AUTH.perms) (AUTH.perms[tab] = AUTH.perms[tab] || {})[aud] = val;
+        sel.setAttribute("data-prev", val); sel.className = "mb-in mb-perm saved";
+        say(permsMsg, "저장했어요. (" + tab + " · " + aud + " → " + val + ")");
+      }).catch(function (e) {
+        sel.value = prev; sel.className = "mb-in mb-perm bad";
+        say(permsMsg, e && e.noRows ? "저장하지 못했어요. 관리자만 바꿀 수 있어요." : failText(e, "저장하지 못했어요. 잠시 뒤에 다시 해 주세요."), true);
+      }).then(function () { sel.disabled = false; });
+    }
+    function loadPermRows() {
+      permsRetry.hidden = true;
+      return rest("tab_permissions?select=tab,audience,level", "GET").then(function (rows) {
+        var m = {};
+        (rows || []).forEach(function (r) { if (r && typeof r.tab === "string" && !(r.tab in Object.prototype) && typeof r.audience === "string") { (m[r.tab] = m[r.tab] || {})[r.audience] = r.level; } });
+        perms = m; say(permsMsg, ""); renderPerms();
+      }, function (e) {
+        say(permsMsg, e && e.status === 401 ? failText(e) : "권한을 불러오지 못했어요. 인터넷을 확인한 뒤 다시 불러와 주세요.", true); permsRetry.hidden = false;
+      });
+    }
+    permsRetry.addEventListener("click", function () { loadPermRows(); });
+
+    // ---- 이 탭을 열 때마다 새로 읽고, 닫을 때(다른 탭으로 갈 때) 임시 비밀번호를 지움 ----
+    function refresh() { if (!isAdmin()) return; loadMembers(); loadPermRows(); }
+    var wasHidden = root.hidden;
+    if (typeof MutationObserver === "function") {
+      new MutationObserver(function () {
+        if (root.hidden) { wipeAll(); cancelAsk(inviteAsk); Array.prototype.forEach.call(listEl.querySelectorAll(".mb-ask"), function (a) { cancelAsk(a); }); }
+        else if (wasHidden) refresh();
+        wasHidden = root.hidden;
+      }).observe(root, { attributes: true, attributeFilter: ["hidden"] });
+    }
+    window.addEventListener("pagehide", wipeAll);
+  }
+
   var tablist = document.getElementById("tabs");
   var panels = document.getElementById("panels");
   var tabEls = [];
@@ -3015,7 +3416,7 @@
     tab.setAttribute("aria-controls", "panel-" + i);
     tab.innerHTML = '<span class="ko"></span><span class="en" lang="en"></span>';
     tab.querySelector(".ko").textContent = name;
-    tab.querySelector(".en").textContent = nameEn;
+    if (nameEn) tab.querySelector(".en").textContent = nameEn; else tab.querySelector(".en").remove();
     tab.addEventListener("click", function () { select(i, false); });
     tablist.appendChild(tab);
     tabEls.push(tab);
@@ -3055,6 +3456,10 @@
       panel.className = "manage";
       panel.innerHTML = MANAGE_HTML;
       initManage(panel);
+    } else if (i === 8) {
+      panel.className = "members";
+      panel.innerHTML = MEMBERS_HTML;
+      initMembers(panel);
     } else {
       panel.innerHTML = '<h2 class="panel-title"></h2><p class="panel-title-en" lang="en"></p>' +
         '<p class="panel-note">다음 주에 만듭니다</p><p class="panel-note-en" lang="en">Coming next week</p>';
@@ -3113,7 +3518,6 @@
       } catch (e) {}
     });
     document.addEventListener("fullscreenchange", function () {
-      de.classList.toggle("is-fs", !!document.fullscreenElement);                 // 전체화면인 동안만 켜짐 (찬양 탭이 이것을 보고 한 줄에 하나씩 크게 보여 줌)
       fsBtn.innerHTML = document.fullscreenElement
         ? '<span>전체화면 끝내기</span><span class="fs-en" lang="en">Exit full screen</span>'
         : '<span>전체화면</span><span class="fs-en" lang="en">Full screen</span>';
@@ -3145,6 +3549,7 @@
   function isAdmin() { return !!(AUTH.session && AUTH.member && AUTH.member.role === "관리자"); }
   function audienceNow() { var r = AUTH.session && AUTH.member && AUTH.member.role; return r === "교사" ? "교사" : r === "부모" ? "부모" : "누구나"; }   // 로그인 안 함·회원 표에 없음 = 누구나
   function levelOf(tab) {
+    if (tab === "회원 관리") return isAdmin() ? "고치기" : "숨김";                 // 회원 관리는 관리자만 (권한 표에 그 줄이 있어도 따르지 않음)
     if (isAdmin()) return "고치기";                                          // 관리자: 권한 표와 상관없이 모든 탭, 모든 단추
     if (!AUTH.perms) return LESSON_TABS.indexOf(tab) > -1 ? "보기" : "숨김";  // 권한 표를 못 읽어 왔으면 공과 탭들만
     var row = AUTH.perms[tab], lv = row && row[audienceNow()];
@@ -3240,6 +3645,7 @@
   function paintHint() { hintEl.hidden = !!AUTH.session || (!AUTH.ready && !devLocked); }       // 로그인하지 않았을 때만 "🔒 로그인하면 더 볼 수 있어요"
   function applyAccess() {                                                   // 권한에 맞게: 숨김 = 탭이 아예 안 보임 / 보기 = 고치는 단추 숨김 / 고치기 = 모두
     var lv = TABS.map(function (p) { return levelOf(p[0]); }), i, cur = -1, first = -1;
+    tablist.classList.toggle("many", lv.filter(function (x) { return x !== "숨김"; }).length > 8);   // 탭이 9개 보이는 관리자 화면에서만 글자를 조금 줄여 한 줄에 맞춤
     tabEls.forEach(function (t, k) {
       t.hidden = lv[k] === "숨김";
       panelEls[k].classList.toggle("ro", lv[k] === "보기");
@@ -3312,7 +3718,7 @@
       });
     }).catch(function () { AUTH.ready = true; applyAccess(); });
   }
-  [5, 6, 7].forEach(function (k) { tabEls[k].hidden = true; });              // 권한을 알기 전까지 출석·달란트·반 관리 탭은 숨김
+  [5, 6, 7, 8].forEach(function (k) { tabEls[k].hidden = true; });           // 권한을 알기 전까지 출석·달란트·반 관리·회원 관리 탭은 숨김
   paintAccount(); paintHint();
   authBoot();
 
