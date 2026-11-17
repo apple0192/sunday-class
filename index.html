@@ -1133,8 +1133,18 @@
   .lc-fest { color: #FFFFFF; background: #2C3E50; }
 
   /* 공과 탭: 커리큘럼 카드에서 고른 과 (아직 수업 흐름을 채우지 않은 과는 표지만) */
-  .lesson-from { margin: 0 0 12px; font-size: clamp(17px, 2.2vw, 22px); font-weight: 800; color: var(--ink-soft); text-align: center; word-break: keep-all; }
-  .lesson-from[hidden], .lesson-full[hidden], .lesson-plan[hidden] { display: none; }
+  .pack[hidden], .lesson-full[hidden], .lesson-plan[hidden], .pack-wait[hidden], .now-lesson[hidden] { display: none; }
+  /* 공과~찬양 탭 위의 "지금 보는 과" 줄 */
+  .now-lesson { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; margin: 14px 0 0; padding: 10px 12px 10px 18px; border-radius: 18px; background: #FFF3D6; border: 2px solid rgba(233, 168, 43, 0.55); }
+  .nl-text { flex: 1 1 240px; min-width: 0; font-size: clamp(17px, 2.1vw, 22px); font-weight: 800; line-height: 1.4; word-break: keep-all; overflow-wrap: anywhere; }
+  .nl-btn { flex: none; min-height: 52px; padding: 0 20px; font: inherit; font-size: clamp(18px, 2.2vw, 22px); font-weight: 900; color: var(--ink); background: #FFFFFF; border: 2px solid rgba(44, 62, 80, 0.3); border-radius: 14px; cursor: pointer; touch-action: manipulation; }
+  .nl-btn:active { background: #F6E2B0; }
+  .nl-btn:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+  /* 아직 채우지 않은 과: 성경 이야기·퀴즈·짝 맞추기·찬양 탭의 "준비 중" 안내 */
+  .pack-wait { padding: clamp(28px, 5vw, 56px) 20px; border-radius: 28px; border: 3px dashed rgba(44, 62, 80, 0.25); background: #FFFCF2; text-align: center; word-break: keep-all; }
+  .pack-wait-icon { margin: 0; font-size: clamp(56px, 8vw, 84px); line-height: 1.1; }
+  .pack-wait-t { margin: 10px 0 0; font-size: clamp(24px, 3.4vw, 36px); font-weight: 900; line-height: 1.35; }
+  .pack-wait-s { margin: 10px 0 0; font-size: clamp(17px, 2.2vw, 22px); font-weight: 700; color: var(--ink-soft); line-height: 1.5; }
   .plan-ref { margin: 12px 0 0; font-size: clamp(24px, 4vw, 40px); font-weight: 800; color: var(--ink-soft); }
   .lesson-plan .cover-question { word-break: keep-all; }
   .plan-note { margin: 18px 0 0; padding: 18px 20px; border-radius: 20px; border: 3px dashed rgba(44, 62, 80, 0.3); font-size: clamp(20px, 2.6vw, 26px); font-weight: 800; color: var(--ink-soft); text-align: center; word-break: keep-all; }
@@ -1216,6 +1226,11 @@
     </div>
     <div class="home-list"></div>
   </section>
+
+  <div class="now-lesson" id="now-lesson" hidden>
+    <span class="nl-text"></span>
+    <button type="button" class="nl-btn" id="now-lesson-btn">과 바꾸기</button>
+  </div>
 
   <div id="panels"></div>
 </div>
@@ -3566,22 +3581,22 @@
     panel.tabIndex = 0;
     if (i === 0) {
       panel.className = "lesson";
-      panel.innerHTML = '<p class="lesson-from" hidden></p><div class="lesson-full">' + LESSON_HTML + '</div><div class="lesson-plan" hidden></div>';
+      panel.innerHTML = '<div class="pack lesson-full" data-pack="honor">' + LESSON_HTML + '</div><div class="lesson-plan" hidden></div>';   // 하나님을 존경하자의 서랍 + 아직 안 채운 과의 표지
     } else if (i === 1) {
       panel.className = "story";
-      panel.innerHTML = STORY_HTML;
+      panel.innerHTML = packHtml("story", STORY_HTML);
       initStory(panel);
     } else if (i === 2) {
       panel.className = "quiz";
-      panel.innerHTML = QUIZ_HTML;
+      panel.innerHTML = packHtml("quiz", QUIZ_HTML);
       initQuiz(panel);
     } else if (i === 3) {
       panel.className = "match";
-      panel.innerHTML = MATCH_HTML;
+      panel.innerHTML = packHtml("match", MATCH_HTML);
       initMatch(panel);
     } else if (i === 4) {
       panel.className = "praise";
-      panel.innerHTML = PRAISE_HTML;
+      panel.innerHTML = packHtml("praise", PRAISE_HTML);
     } else if (i === 5) {
       panel.className = "attend";
       panel.innerHTML = ATTEND_HTML;
@@ -3679,7 +3694,20 @@
     prodigal:  ["돌아온 아들", "누가복음 15장 11-24절", "기다리시는 아버지", "집에 돌아왔을 때 누가 반겨 주나요?", "parable"],
     lovecmd:   ["서로 사랑하라", "요한복음 13장 34-35절", "예수님의 새 계명", "친구가 나를 아껴 준다고 느낀 때는 언제인가요?", "church"]
   };
-  var CUR_FILLED = { honor: true };                                          // 수업 흐름까지 채운 과 (지금 공과 탭의 내용). 나머지 과는 표지만
+  // ---- 과마다 서랍: 공과 / 성경 이야기 / 퀴즈 / 짝 맞추기 / 찬양 다섯 탭의 내용을 과마다 따로 가짐 ----
+  // 출석·달란트·반 관리·회원 관리는 과와 상관없이 모든 과가 함께 씀 (여기에 넣지 않음)
+  // LESSON_PACKS[과 이름][탭] = true 이면 그 과의 서랍(<div class="pack" data-pack="과 이름">)이 그 탭에 있음. 없으면 "준비 중" 안내
+  var LESSON_PACKS = {
+    honor: { lesson: true, story: true, quiz: true, match: true, praise: true }   // 하나님을 존경하자: 처음 만든 공과 (내용 그대로)
+  };
+  var PACK_TABS = ["lesson", "story", "quiz", "match", "praise"];           // 탭 번호 0~4
+  var PACK_NAMES = { lesson: "공과는", story: "성경 이야기는", quiz: "퀴즈는", match: "짝 맞추기는", praise: "찬양은" };   // 안내 문장용 (조사까지)
+  var CUR_LESSON_KEY = "sunshine-class-current-lesson-v1";                  // 마지막으로 고른 과만 기억. 아이들 기록과는 상관없음
+  function packHtml(kind, html) {                                            // 하나님을 존경하자의 서랍 + 아직 안 채운 과의 안내
+    return '<div class="pack" data-pack="honor">' + html + '</div>' +
+      '<div class="pack-wait" hidden><p class="pack-wait-icon" aria-hidden="true">🌱</p><p class="pack-wait-t"></p>' +
+      '<p class="pack-wait-s">이 과의 내용을 채우면 여기에 나와요. 다른 과는 🏠 홈에서 고를 수 있어요.</p></div>';
+  }
   var CUR_FEST_ICON = { "부활절": "🌸 ", "어린이주일": "🎈 ", "추수감사주일": "🍎 ", "성탄절": "🎄 " };
   // 과정: start = 첫 주일 [년, 월, 일], 과마다 [과 이름, 절기, {t: 제목, p: 주제, q: 여는 질문 바꾸기}]
   var CUR_COURSES = {
@@ -3780,19 +3808,55 @@
       homeLegend.appendChild(s);
     });
   }
-  function curOpen(e, fromText) {                                            // 카드를 누르면: 공과 탭을 열고 표지에 그 과를 넣음
-    if (tabEls[0].hidden) return;
-    var p = panelEls[0], full = p.querySelector(".lesson-full"), plan = p.querySelector(".lesson-plan"), from = p.querySelector(".lesson-from");
-    from.textContent = "📚 " + fromText; from.hidden = false;
-    if (CUR_FILLED[e.id]) { full.hidden = false; plan.hidden = true; }
-    else {
-      plan.innerHTML = '<section class="cover" aria-label="이 과의 표지"><h2 class="cover-title"></h2><p class="plan-ref"></p>' +
-        '<div class="stack"><p class="cover-question"></p></div></section><p class="plan-note">이 과의 수업 흐름은 그 주에 채웁니다</p>';
-      plan.querySelector(".cover-title").textContent = e.title;
-      plan.querySelector(".plan-ref").textContent = e.ref;
-      plan.querySelector(".cover-question").textContent = e.q;
-      full.hidden = true; plan.hidden = false;
+  // 지금 보는 과: 카드를 고르기 전에는 하나님을 존경하자 (원래 쓰던 공과 그대로)
+  var curLesson = null;
+  function curDefaultLesson() {
+    var c = CUR_COURSES.year, first = curDayNum(c.start[0], c.start[1], c.start[2]);
+    for (var i = 0; i < c.items.length; i++) if (c.items[i][0] === "honor") {
+      var t = curYMD(first + 7 * i), e = curEntry(c.items[i]);
+      e.from = c.label + " 과정 · " + t.y + "년 " + t.m + "월 " + t.d + "일 주일 · " + (i + 1) + "과";
+      return e;
     }
+    return null;
+  }
+  function curLoadLesson() {
+    var s = null;
+    try { s = JSON.parse(window.localStorage.getItem(CUR_LESSON_KEY) || "null"); } catch (e) { s = null; }
+    if (s && typeof s.id === "string" && Object.prototype.hasOwnProperty.call(CUR_LESSONS, s.id)) {
+      var L = CUR_LESSONS[s.id], str = function (v, d) { return typeof v === "string" && v ? v.slice(0, 200) : d; };
+      return { id: s.id, title: str(s.title, L[0]), ref: L[1], topic: str(s.topic, L[2]), q: str(s.q, L[3]), group: L[4], fest: "", from: str(s.from, "") };
+    }
+    return curDefaultLesson();
+  }
+  function applyLesson() {                                                   // 다섯 탭에 지금 과의 서랍을 보이고, 서랍이 없으면 "준비 중"
+    var e = curLesson, packs = (e && LESSON_PACKS[e.id]) || {};
+    PACK_TABS.forEach(function (kind, i) {
+      var p = panelEls[i], has = !!packs[kind] && !!p.querySelector('.pack[data-pack="' + e.id + '"]');
+      Array.prototype.forEach.call(p.querySelectorAll(".pack"), function (el) { el.hidden = !(has && el.getAttribute("data-pack") === e.id); });
+      if (kind === "lesson") {
+        var plan = p.querySelector(".lesson-plan");
+        plan.hidden = has;
+        if (!has && e) {
+          plan.innerHTML = '<section class="cover" aria-label="이 과의 표지"><h2 class="cover-title"></h2><p class="plan-ref"></p>' +
+            '<div class="stack"><p class="cover-question"></p></div></section><p class="plan-note">이 과의 수업 흐름은 그 주에 채웁니다</p>';
+          plan.querySelector(".cover-title").textContent = e.title;
+          plan.querySelector(".plan-ref").textContent = e.ref;
+          plan.querySelector(".cover-question").textContent = e.q;
+        }
+      } else {
+        var wait = p.querySelector(".pack-wait");
+        wait.hidden = has;
+        if (!has) wait.querySelector(".pack-wait-t").textContent = "이 과의 " + PACK_NAMES[kind] + " 아직 준비 중이에요";
+      }
+    });
+    if (e) nowText.textContent = "📚 지금 보는 과: " + (e.from ? e.from + " · " : "") + e.title;
+  }
+  function paintNowBar(index) { nowBar.hidden = !(curLesson && !homeOpen && index >= 0 && index < PACK_TABS.length); }   // 공과~찬양 탭에서만 보임
+  function curOpen(e, fromText) {                                            // 카드를 누르면: 그 과를 지금 과로 하고 공과 탭을 엶
+    if (tabEls[0].hidden) return;
+    curLesson = { id: e.id, title: e.title, ref: e.ref, topic: e.topic, q: e.q, group: e.group, fest: e.fest, from: fromText };
+    try { window.localStorage.setItem(CUR_LESSON_KEY, JSON.stringify({ id: e.id, title: e.title, topic: e.topic, q: e.q, from: fromText })); } catch (er) {}
+    applyLesson();
     select(0, false); toPanelTop();
   }
   function homeAllowed() { return !AUTH.ready || levelOf("커리큘럼 홈") !== "숨김"; }   // 권한 표의 "커리큘럼 홈" 줄을 따름 (지금은 모두 보기)
@@ -3814,7 +3878,7 @@
   function openHome(toNow) {
     if (!homeAllowed()) return false;
     var firstVis = -1;
-    homeOpen = true; homeEl.hidden = false;
+    homeOpen = true; homeEl.hidden = false; nowBar.hidden = true;
     homeBtn.classList.add("on"); homeBtn.setAttribute("aria-current", "page");
     tabEls.forEach(function (t, i) { t.setAttribute("aria-selected", "false"); t.tabIndex = -1; panelEls[i].hidden = true; if (firstVis < 0 && !t.hidden) firstVis = i; });
     if (firstVis >= 0) tabEls[firstVis].tabIndex = 0;                       // 키보드로 탭 줄에 들어올 수 있게
@@ -3841,9 +3905,13 @@
     });
   });
   curRender();
+  var nowBar = document.getElementById("now-lesson"), nowText = nowBar.querySelector(".nl-text");
+  document.getElementById("now-lesson-btn").addEventListener("click", function () { openHome(false); });
+  curLesson = curLoadLesson();
+  applyLesson();
 
   function toPanelTop() {                                                    // 아래로 내려와서 다른 탭을 누르면, 새 탭의 처음이 탭 줄 바로 아래에 보이게
-    var nav = tablist.parentNode, top = panels.getBoundingClientRect().top + window.scrollY - nav.offsetHeight - 8;
+    var nav = tablist.parentNode, anchor = nowBar.hidden ? panels : nowBar, top = anchor.getBoundingClientRect().top + window.scrollY - nav.offsetHeight - 8;
     if (window.scrollY > top) window.scrollTo(0, Math.max(0, top));
   }
   function select(index, focusTab) {
@@ -3855,6 +3923,7 @@
       t.tabIndex = on ? 0 : -1;
       panelEls[i].hidden = !on;
     });
+    paintNowBar(index);                                                      // "지금 보는 과" 줄은 공과~찬양 탭에서만
     if (focusTab) tabEls[index].focus();
   }
 
