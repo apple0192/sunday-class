@@ -1144,6 +1144,7 @@
   .pack-wait { padding: clamp(28px, 5vw, 56px) 20px; border-radius: 28px; border: 3px dashed rgba(44, 62, 80, 0.25); background: #FFFCF2; text-align: center; word-break: keep-all; }
   .pack-wait-icon { margin: 0; font-size: clamp(56px, 8vw, 84px); line-height: 1.1; }
   .pack-wait-t { margin: 10px 0 0; font-size: clamp(24px, 3.4vw, 36px); font-weight: 900; line-height: 1.35; }
+  .verse-wait { margin: 8px 0 0; font-size: clamp(15px, 1.8vw, 18px); font-weight: 700; color: var(--ink-soft); }
   .pack-wait-s { margin: 10px 0 0; font-size: clamp(17px, 2.2vw, 22px); font-weight: 700; color: var(--ink-soft); line-height: 1.5; }
   .plan-ref { margin: 12px 0 0; font-size: clamp(24px, 4vw, 40px); font-weight: 800; color: var(--ink-soft); }
   .lesson-plan .cover-question { word-break: keep-all; }
@@ -1293,12 +1294,14 @@
   ];
   var THINK_COLORS = ["#FFDCC6", "#FFEFB0", "#D3EEDB", "#D2E6F6", "#E4DAF4"];
 
-  var THINK_HTML = (function () {
+  // 과마다 다른 질문을 넣을 수 있게: thinkHtml(질문 목록, id 뒤에 붙일 글자). 하나님을 존경하자는 원래 그대로
+  var THINK_HTML = thinkHtml(THINK_QUESTIONS, "");
+  function thinkHtml(questions, idp) {
     var h = '<section class="think">' +
-      '<button type="button" class="think-toggle" aria-expanded="false" aria-controls="think-cards">' +
+      '<button type="button" class="think-toggle" aria-expanded="false" aria-controls="think-cards' + idp + '">' +
       '<span>함께 생각해 볼까요?</span><span class="think-chevron" aria-hidden="true"></span></button>' +
-      '<div class="think-cards" id="think-cards" hidden>';
-    THINK_QUESTIONS.forEach(function (q, i) {
+      '<div class="think-cards" id="think-cards' + idp + '" hidden>';
+    questions.forEach(function (q, i) {
       h += '<button type="button" class="think-card" data-i="' + i + '">' +
         '<span class="think-num" aria-hidden="true">' + (i + 1) + '</span><span class="think-q">' + q + '</span></button>';
     });
@@ -1307,23 +1310,25 @@
       '<div class="tf-top"><button type="button" class="tf-btn tf-close">닫기 ✕</button></div>' +
       '<div class="tf-body"><span class="tf-num" aria-hidden="true"></span><p class="tf-q" aria-live="polite"></p></div>' +
       '<div class="tf-nav"><button type="button" class="tf-btn tf-prev">‹ 이전</button><div class="tf-dots" aria-hidden="true">';
-    THINK_QUESTIONS.forEach(function () { h += '<span></span>'; });
+    questions.forEach(function () { h += '<span></span>'; });
     h += '</div><button type="button" class="tf-btn tf-next">다음 ›</button></div></div></section>';
     return h;
-  })();
+  }
 
-  var STORY_HTML = (function () {
+  // 성경 이야기 화면: storyHtml(장면 이름 목록, 그림 목록, 질문 칸). 하나님을 존경하자는 원래 그대로
+  var STORY_HTML = storyHtml(SCENE_TITLES, SCENE_ARTS, THINK_HTML);
+  function storyHtml(titles, arts, think) {
     var nav = '<div class="scene-nav" role="group" aria-label="장면 고르기">';
-    SCENE_TITLES.forEach(function (t, i) {
+    titles.forEach(function (t, i) {
       nav += '<button type="button" class="scene-btn" aria-pressed="' + (i === 0) + '">' + (i + 1) + '</button>';
     });
     nav += '<p class="scene-title" aria-live="polite"></p></div>';
-    var views = SCENE_TITLES.map(function (t, i) {
-      var art = SCENE_ARTS[i] || '<div class="scene-empty">다음 주에 만듭니다</div>';
+    var views = titles.map(function (t, i) {
+      var art = arts[i] || '<div class="scene-empty">다음 주에 만듭니다</div>';
       return '<div class="scene-view"' + (i === 0 ? '' : ' hidden') + '>' + art + '</div>';
     }).join("");
-    return '<section class="story-wrap">' + nav + views + THINK_HTML + '</section>';
-  })();
+    return '<section class="story-wrap">' + nav + views + think + '</section>';
+  }
 
   // 성경 본문 (새번역): [절 번호, 본문]
   var PASSAGES = [
@@ -1518,7 +1523,8 @@
   }
 
   // 함께 생각해 볼까요?: 접기/펼치기, 질문 카드 → 전체 화면 보기 (이전·다음, ESC)
-  function initThink(root) {
+  function initThink(root, questions) {
+    var QS = questions || THINK_QUESTIONS;                 // 과마다 다른 질문 (없으면 하나님을 존경하자의 질문)
     var toggle = root.querySelector(".think-toggle");
     var cardsBox = root.querySelector(".think-cards");
     var cards = Array.prototype.slice.call(root.querySelectorAll(".think-card"));
@@ -1541,7 +1547,7 @@
       cur = Math.max(0, Math.min(cards.length - 1, i));
       full.style.setProperty("--c", THINK_COLORS[cur]);
       numEl.textContent = cur + 1;
-      qEl.textContent = THINK_QUESTIONS[cur];
+      qEl.textContent = QS[cur];
       prev.disabled = cur === 0;
       next.disabled = cur === cards.length - 1;
       dots.forEach(function (d, k) { d.className = k === cur ? "on" : ""; });
@@ -1593,7 +1599,8 @@
   }
 
   // 성경 이야기: 위쪽 번호로 장면 고르기 (그림이 있는 장면마다 끌기 기능을 켭니다)
-  function initStory(root) {
+  function initStory(root, titles, questions) {
+    var TT = titles || SCENE_TITLES;                       // 과마다 다른 장면 이름 (없으면 하나님을 존경하자의 장면)
     var views = Array.prototype.slice.call(root.querySelectorAll(".scene-view"));
     var btns = Array.prototype.slice.call(root.querySelectorAll(".scene-btn"));
     var title = root.querySelector(".scene-title");
@@ -1601,11 +1608,11 @@
     function show(i) {
       btns.forEach(function (b, k) { b.setAttribute("aria-pressed", k === i ? "true" : "false"); });
       views.forEach(function (v, k) { v.hidden = k !== i; });
-      title.textContent = SCENE_TITLES[i] || "";
+      title.textContent = TT[i] || "";
     }
     btns.forEach(function (b, k) { b.addEventListener("click", function () { show(k); }); });
     show(0);
-    initThink(root);
+    initThink(root, questions);
   }
 
   // ===================== 퀴즈 (5문제) =====================
@@ -1730,12 +1737,13 @@
     } catch (e) {}
   }
 
-  function initQuiz(root) {
+  function initQuiz(root, questions) {
+    var QUIZ_ = questions || QUIZ;                         // 과마다 다른 문제 (없으면 하나님을 존경하자의 문제)
     var $ = function (sel) { return root.querySelector(sel); };
     var progress = $(".qz-progress"), scoreBox = $(".qz-score"), scoreN = $(".qz-n"), bar = $(".qz-bar"),
         card = $(".qz-card"), refEl = $(".qz-ref"), qEl = $(".qz-q"), choicesEl = $(".qz-choices"),
         fb = $(".qz-feedback"), result = $(".qz-result"), next = $(".qz-next"), restart = $(".qz-restart");
-    var N = QUIZ.length, NUMS = ["①", "②", "③"];
+    var N = QUIZ_.length, NUMS = ["①", "②", "③"];
     var st = { i: 0, results: [], score: 0, locked: false, done: false };
 
     function paintBar() {
@@ -1753,7 +1761,7 @@
       } catch (e) {}
     }
     function render() {
-      var q = QUIZ[st.i];
+      var q = QUIZ_[st.i];
       st.locked = false; st.done = false;
       card.hidden = false; result.hidden = true; fb.hidden = true; fb.className = "qz-feedback";
       progress.textContent = "문제 " + (st.i + 1) + " / " + N;
@@ -1779,7 +1787,7 @@
     function choose(k) {
       if (st.locked) return;                          // 한 번 고르면 끝
       st.locked = true;
-      var q = QUIZ[st.i], ok = k === q.answer, btns = choicesEl.children;
+      var q = QUIZ_[st.i], ok = k === q.answer, btns = choicesEl.children;
       st.results[st.i] = ok;
       for (var j = 0; j < btns.length; j++) {
         var b = btns[j]; b.disabled = true;
@@ -1915,7 +1923,9 @@
 
   var MATCH_WRONG_MS = 2600;                                // 틀린 두 장을 보여 주는 시간 (밀리초)
 
-  function initMatch(root) {
+  function initMatch(root, pairs) {
+    var PAIRS = pairs || MATCH_PAIRS;                      // 과마다 다른 짝 (없으면 하나님을 존경하자의 짝)
+    var host = (root.closest && root.closest('[role="tabpanel"]')) || root;   // 탭이 열릴 때도 카드 크기를 다시 맞춤
     var $ = function (sel) { return root.querySelector(sel); };
     var grid = $(".mt-grid"), win = $(".mt-win"), pairsEl = $(".mt-pairs"), triesEl = $(".mt-tries"), totalEl = $(".mt-total"),
         lvBtns = Array.prototype.slice.call(root.querySelectorAll(".mt-lv")), shuffleBtn = $(".mt-shuffle");
@@ -1946,7 +1956,7 @@
       clearTimeout(st.timer);
       st.open = []; st.busy = false; st.matched = 0; st.tries = 0;
       win.hidden = true; win.innerHTML = ""; root.setAttribute("data-fx", "none");
-      var pool = shuffle(MATCH_PAIRS.slice()).slice(0, st.n), deck = [];
+      var pool = shuffle(PAIRS.slice()).slice(0, st.n), deck = [];
       pool.forEach(function (p) { deck.push({ pair: p, state: "down" }, { pair: p, state: "down" }); });
       st.cards = shuffle(deck);
       grid.innerHTML = "";
@@ -2005,7 +2015,7 @@
     }
     // 카드판이 남은 화면을 가득 채우도록: 카드판 위쪽을 뺀 높이를 재서 카드 크기를 정함
     function fit() {
-      if (root.hidden) return;
+      if (root.hidden || host.hidden) return;
       var rows = (st.n * 2) / 4, cs = window.getComputedStyle(grid), gap = parseFloat(cs.rowGap) || 16;
       var top = grid.getBoundingClientRect().top + (window.pageYOffset || 0);
       var h = Math.max(rows * 150 + (rows - 1) * gap, Math.floor(window.innerHeight - top - 18));
@@ -2026,7 +2036,7 @@
     window.addEventListener("resize", fit);
     window.addEventListener("orientationchange", fit);
     document.addEventListener("fullscreenchange", fit);
-    if (window.MutationObserver) new MutationObserver(fit).observe(root, { attributes: true, attributeFilter: ["hidden"] });
+    if (window.MutationObserver) { new MutationObserver(fit).observe(root, { attributes: true, attributeFilter: ["hidden"] }); if (host !== root) new MutationObserver(fit).observe(host, { attributes: true, attributeFilter: ["hidden"] }); }
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
     newGame();
     fit();
@@ -2060,6 +2070,169 @@
     });
     return h + '</div></section>';
   })();
+
+  // ===================== 1과 · 하나님이 세상을 만드셨어요 (창세기 1장 1-31절) =====================
+  // 과마다 서랍 자료. LESSON_DATA 에 넣으면 그 과의 탭(공과·성경 이야기·퀴즈·짝 맞추기)이 만들어집니다. 찬양은 아직 없음 → "준비 중"
+  var CREATION_LESSON_HTML =
+    '<section class="cover" aria-label="1과 표지">' +
+      '<h2 class="cover-title">하나님이 세상을 만드셨어요</h2>' +
+      '<p class="plan-ref">창세기 1장 1-31절</p>' +
+      '<div class="stack"><p class="cover-question">세상에서 내가 가장 좋아하는 것은 무엇인가요?</p></div>' +
+      '<div class="verses">' +
+        '<blockquote class="verse"><p class="verse-head">암송 구절 · 창세기 1장 1절</p><p class="verse-text">태초에 하나님이 천지를 창조하시니라</p></blockquote>' +
+        '<blockquote class="verse"><p class="verse-head">함께 읽을 말씀</p><p class="verse-text">창세기 1장 1절 · 3절 · 27절 · 31절</p>' +
+          '<p class="verse-wait">본문 글은 개역개정에서 옮겨 넣을 예정입니다.</p></blockquote>' +
+      '</div>' +
+    '</section>' +
+    '<details class="flow">' +
+      '<summary><span>수업 흐름</span><span class="sum-hint"><span>총 40분</span>' +
+        '<span class="when-closed">눌러서 펼치기</span><span class="when-open">눌러서 접기</span></span></summary>' +
+      '<ul class="flow-list">' +
+        step("도입", "", "마음 열기 · 좋아하는 것 말하기", "", "5분", "") +
+        step("말씀", "", "성경 이야기 · 엿새 동안 만드신 것", "", "12분", "") +
+        step("활동", "", "짝 맞추기와 퀴즈", "", "10분", "") +
+        step("적용", "", "고마워요 하나님 카드", "", "8분", "") +
+        step("마무리", "", "기도와 찬양", "", "5분", "") +
+      '</ul>' +
+    '</details>';
+
+  // 성경 이야기 그림 1장: 하늘·바다·땅 위에, 아래 칸의 만드신 것들을 날짜 순서대로 하나씩 끌어다 놓음 (흐림·움직임 효과 없음)
+  var CREATION_SCENE_HTML = [
+    '<figure class="scene"><svg viewBox="0 0 1000 680" role="img" aria-label="하늘과 바다와 땅이 있는 세상. 아래 칸에 구름, 나무, 꽃, 해, 달, 별, 물고기, 새, 양, 사자, 사람이 있어서 하나씩 끌어 옮길 수 있어요">',
+    '<defs>',
+      '<linearGradient id="cr-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF4D6"/><stop offset="1" stop-color="#CFEAFB"/></linearGradient>',
+      '<linearGradient id="cr-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7CC4EA"/><stop offset="1" stop-color="#3E8FC6"/></linearGradient>',
+      '<linearGradient id="cr-land" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A8D883"/><stop offset="1" stop-color="#6DB35A"/></linearGradient>',
+      '<radialGradient id="cr-glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.8"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>',
+    '</defs>',
+    '<rect width="1000" height="680" fill="url(#cr-sky)"/>',
+    '<ellipse cx="500" cy="170" rx="470" ry="210" fill="url(#cr-glow)"/>',
+    '<path d="M0 380 Q 120 360 240 380 T 480 380 T 620 392 L 620 680 L 0 680 Z" fill="url(#cr-sea)"/>',
+    '<path d="M40 440 q 20 -10 40 0 t 40 0 M210 478 q 20 -10 40 0 t 40 0 M90 520 q 20 -10 40 0 t 40 0 M330 450 q 20 -10 40 0 t 40 0" stroke="#D8F0FF" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.85"/>',
+    '<path d="M450 400 Q 600 330 760 350 Q 900 362 1000 330 L 1000 680 L 450 680 Z" fill="url(#cr-land)"/>',
+    '<text x="500" y="54" text-anchor="middle" font-size="32" font-weight="800" fill="#2C3E50" opacity="0.78">하나님이 만드신 것을 하나씩 옮겨 보세요</text>',
+    '<rect x="14" y="566" width="972" height="104" rx="26" fill="#FFF8E6" opacity="0.94" stroke="#E9C987" stroke-width="3"/>',
+    '<g class="actors">',
+      // 둘째 날: 구름
+      '<g class="drag" data-id="cloud" role="img" aria-label="구름"><g transform="translate(58 620)">',
+        '<path d="M-30 18 Q-42 18 -40 4 Q-38 -8 -24 -6 Q-20 -24 0 -24 Q18 -24 22 -8 Q38 -10 40 6 Q42 18 30 18 Z" fill="#FFFFFF" stroke="#A9CBE3" stroke-width="3" stroke-linejoin="round"/>',
+      '</g></g>',
+      // 셋째 날: 나무와 열매, 꽃
+      '<g class="drag" data-id="tree" role="img" aria-label="나무와 열매"><g transform="translate(146 618)">',
+        '<rect x="-6" y="4" width="12" height="34" rx="4" fill="#9C6B3F"/>',
+        '<circle cx="-14" cy="-2" r="14" fill="#4DAF54"/><circle cx="14" cy="-2" r="14" fill="#4DAF54"/><circle cx="0" cy="-14" r="20" fill="#5CBF5F"/>',
+        '<circle cx="-8" cy="-14" r="3.5" fill="#E74C3C"/><circle cx="8" cy="-4" r="3.5" fill="#E74C3C"/><circle cx="3" cy="-25" r="3.5" fill="#E74C3C"/>',
+      '</g></g>',
+      '<g class="drag" data-id="flower" role="img" aria-label="꽃"><g transform="translate(234 616)">',
+        '<path d="M0 0 L0 36" stroke="#3E9B46" stroke-width="5" stroke-linecap="round"/>',
+        '<path d="M0 24 Q14 14 18 22 Q10 30 0 26 Z" fill="#5CBF5F"/>',
+        '<circle cx="0" cy="-23" r="8.5" fill="#FF8FB1"/><circle cx="10.5" cy="-15.4" r="8.5" fill="#FF8FB1"/><circle cx="6.5" cy="-3.1" r="8.5" fill="#FF8FB1"/>',
+        '<circle cx="-6.5" cy="-3.1" r="8.5" fill="#FF8FB1"/><circle cx="-10.5" cy="-15.4" r="8.5" fill="#FF8FB1"/><circle cx="0" cy="-12" r="6" fill="#FFD34D"/>',
+      '</g></g>',
+      // 넷째 날: 해, 달, 별
+      '<g class="drag" data-id="sun" role="img" aria-label="해"><g transform="translate(322 618)">',
+        '<path d="M30 0 L40 0 M21.2 21.2 L28.3 28.3 M0 30 L0 40 M-21.2 21.2 L-28.3 28.3 M-30 0 L-40 0 M-21.2 -21.2 L-28.3 -28.3 M0 -30 L0 -40 M21.2 -21.2 L28.3 -28.3" stroke="#F2A93B" stroke-width="6" stroke-linecap="round"/>',
+        '<circle r="26" fill="#FFC940" stroke="#F2A93B" stroke-width="4"/>',
+        '<circle cx="-8" cy="-4" r="2.6" fill="#8A5A00"/><circle cx="8" cy="-4" r="2.6" fill="#8A5A00"/>',
+        '<path d="M-9 6 Q0 14 9 6" stroke="#B9770E" stroke-width="3" fill="none" stroke-linecap="round"/>',
+      '</g></g>',
+      '<g class="drag" data-id="moon" role="img" aria-label="달"><g transform="translate(410 618)">',
+        '<path d="M2.56 -25.88 A26 26 0 1 0 22.24 13.48 A22 22 0 1 1 2.56 -25.88 Z" fill="#FBE08A" stroke="#D9B44A" stroke-width="4" stroke-linejoin="round"/>',
+      '</g></g>',
+      '<g class="drag" data-id="stars" role="img" aria-label="별"><g transform="translate(498 618)">',
+        '<circle r="34" fill="transparent"/>',
+        '<polygon transform="translate(-14 -14)" points="0,-14 3.5,-4.9 13.3,-4.3 5.7,1.9 8.2,11.3 0,6 -8.2,11.3 -5.7,1.9 -13.3,-4.3 -3.5,-4.9" fill="#FFE066" stroke="#E0A030" stroke-width="2.5" stroke-linejoin="round"/>',
+        '<polygon transform="translate(16 -4) scale(0.8)" points="0,-14 3.5,-4.9 13.3,-4.3 5.7,1.9 8.2,11.3 0,6 -8.2,11.3 -5.7,1.9 -13.3,-4.3 -3.5,-4.9" fill="#FFE066" stroke="#E0A030" stroke-width="2.5" stroke-linejoin="round"/>',
+        '<polygon transform="translate(-2 18) scale(0.9)" points="0,-14 3.5,-4.9 13.3,-4.3 5.7,1.9 8.2,11.3 0,6 -8.2,11.3 -5.7,1.9 -13.3,-4.3 -3.5,-4.9" fill="#FFE066" stroke="#E0A030" stroke-width="2.5" stroke-linejoin="round"/>',
+      '</g></g>',
+      // 다섯째 날: 물고기, 새
+      '<g class="drag" data-id="fish" role="img" aria-label="물고기"><g transform="translate(586 618)">',
+        '<path d="M14 0 L34 -14 L34 14 Z" fill="#FF9F43" stroke="#E07B1A" stroke-width="3" stroke-linejoin="round"/>',
+        '<ellipse cx="-6" cy="0" rx="24" ry="15" fill="#FF9F43" stroke="#E07B1A" stroke-width="3"/>',
+        '<path d="M-2 -6 Q4 0 -2 6" stroke="#E07B1A" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+        '<circle cx="-17" cy="-4" r="3.5" fill="#2C3E50"/>',
+      '</g></g>',
+      '<g class="drag" data-id="bird" role="img" aria-label="새"><g transform="translate(674 620)">',
+        '<path d="M-18 -2 L-34 -10 L-32 6 Z" fill="#5DADE2" stroke="#2E86C1" stroke-width="2.5" stroke-linejoin="round"/>',
+        '<ellipse cx="-2" cy="0" rx="22" ry="15" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>',
+        '<circle cx="16" cy="-12" r="11" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>',
+        '<path d="M26 -14 L36 -10 L26 -7 Z" fill="#F5B041"/>',
+        '<circle cx="19" cy="-14" r="2.5" fill="#1B2631"/>',
+        '<path d="M-10 -4 Q0 -20 10 -4 Q0 2 -10 -4 Z" fill="#85C1E9" stroke="#2E86C1" stroke-width="2.5" stroke-linejoin="round"/>',
+      '</g></g>',
+      // 여섯째 날: 양, 사자, 사람
+      '<g class="drag" data-id="sheep" role="img" aria-label="양"><g transform="translate(762 614)">',
+        '<rect x="-14" y="10" width="7" height="20" rx="3" fill="#5D5D5D"/><rect x="6" y="10" width="7" height="20" rx="3" fill="#5D5D5D"/>',
+        '<circle cx="-14" cy="0" r="14.5" fill="#D5D5D5"/><circle cx="0" cy="-6" r="16.5" fill="#D5D5D5"/><circle cx="14" cy="0" r="14.5" fill="#D5D5D5"/><circle cx="-6" cy="8" r="14.5" fill="#D5D5D5"/><circle cx="8" cy="8" r="14.5" fill="#D5D5D5"/>',
+        '<circle cx="-14" cy="0" r="12" fill="#FFFFFF"/><circle cx="0" cy="-6" r="14" fill="#FFFFFF"/><circle cx="14" cy="0" r="12" fill="#FFFFFF"/><circle cx="-6" cy="8" r="12" fill="#FFFFFF"/><circle cx="8" cy="8" r="12" fill="#FFFFFF"/>',
+        '<ellipse cx="24" cy="-6" rx="9" ry="11" fill="#5D5D5D"/><circle cx="27" cy="-8" r="2" fill="#FFFFFF"/>',
+      '</g></g>',
+      '<g class="drag" data-id="lion" role="img" aria-label="사자"><g transform="translate(850 618)">',
+        '<circle r="27" fill="#D68910"/>',
+        '<circle cx="26" cy="0" r="9" fill="#D68910"/><circle cx="18.4" cy="18.4" r="9" fill="#D68910"/><circle cx="0" cy="26" r="9" fill="#D68910"/><circle cx="-18.4" cy="18.4" r="9" fill="#D68910"/>',
+        '<circle cx="-26" cy="0" r="9" fill="#D68910"/><circle cx="-18.4" cy="-18.4" r="9" fill="#D68910"/><circle cx="0" cy="-26" r="9" fill="#D68910"/><circle cx="18.4" cy="-18.4" r="9" fill="#D68910"/>',
+        '<circle cx="-13" cy="-15" r="6" fill="#F7C948"/><circle cx="13" cy="-15" r="6" fill="#F7C948"/>',
+        '<circle r="19" fill="#F7C948"/>',
+        '<circle cx="-7" cy="-3" r="2.8" fill="#2C3E50"/><circle cx="7" cy="-3" r="2.8" fill="#2C3E50"/>',
+        '<path d="M-4 5 L4 5 L0 10 Z" fill="#8E5B1E"/>',
+        '<path d="M0 10 Q-5 15 -9 12 M0 10 Q5 15 9 12" stroke="#8E5B1E" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+      '</g></g>',
+      '<g class="drag" data-id="people" role="img" aria-label="사람 (남자와 여자)"><g transform="translate(938 612)">',
+        '<rect x="-23" y="26" width="6" height="12" rx="3" fill="#3B4A6B"/><rect x="-13" y="26" width="6" height="12" rx="3" fill="#3B4A6B"/>',
+        '<rect x="-27" y="-2" width="24" height="30" rx="10" fill="#5B8DEF"/>',
+        '<circle cx="-15" cy="-16" r="11" fill="#F5CBA7" stroke="#D4A27F" stroke-width="2"/>',
+        '<path d="M-26 -18 Q-25 -30 -15 -29 Q-5 -30 -4 -18 Q-10 -24 -15 -23 Q-21 -24 -26 -18 Z" fill="#5D4037"/>',
+        '<circle cx="-19" cy="-15" r="1.6" fill="#2C3E50"/><circle cx="-11" cy="-15" r="1.6" fill="#2C3E50"/>',
+        '<path d="M-19 -10 Q-15 -7 -11 -10" stroke="#A0522D" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
+        '<rect x="9" y="28" width="5" height="10" rx="2.5" fill="#F5CBA7"/><rect x="17" y="28" width="5" height="10" rx="2.5" fill="#F5CBA7"/>',
+        '<path d="M3 -14 Q3 -30 15 -29 Q27 -30 27 -14 L28 4 L2 4 Z" fill="#6D4C41"/>',
+        '<path d="M7 -2 Q15 -6 23 -2 L30 30 L0 30 Z" fill="#F1948A"/>',
+        '<circle cx="15" cy="-16" r="11" fill="#F5CBA7" stroke="#D4A27F" stroke-width="2"/>',
+        '<path d="M4 -18 Q6 -28 15 -27 Q24 -28 26 -18 Q20 -23 15 -22 Q10 -23 4 -18 Z" fill="#6D4C41"/>',
+        '<circle cx="11" cy="-15" r="1.6" fill="#2C3E50"/><circle cx="19" cy="-15" r="1.6" fill="#2C3E50"/>',
+        '<path d="M11 -10 Q15 -7 19 -10" stroke="#A0522D" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
+      '</g></g>',
+    '</g></svg></figure><div class="story-actions"><button type="button" class="reset-btn">처음으로</button></div>'
+  ].join("");
+
+  var CREATION_QUIZ = [
+    { ref: "창세기 1장 1-31절", q: "하나님이 첫째 날 만드신 것은 무엇인가요?",
+      choices: ["빛", "해", "물고기"], answer: 0,
+      why: "해는 넷째 날에 만드셨어요. 첫째 날에는 빛을 만드셨어요.", src: "창세기 1장 3절" },
+    { ref: "창세기 1장 1-31절", q: "해와 달과 별은 며칠째에 만드셨나요?",
+      choices: ["첫째 날", "넷째 날", "여섯째 날"], answer: 1,
+      why: "넷째 날, 하나님은 하늘에 큰 빛과 작은 빛과 별들을 두셨어요.", src: "창세기 1장 14-19절" },
+    { ref: "창세기 1장 1-31절", q: "하나님은 세상을 어떻게 만드셨나요?",
+      choices: ["말씀으로", "망치와 못으로", "천사들에게 시켜서"], answer: 0,
+      why: "하나님이 “빛이 있으라” 하시니 빛이 있었어요. 말씀하시면 그대로 되었어요.", src: "창세기 1장 3절" },
+    { ref: "창세기 1장 1-31절", q: "하나님은 사람을 누구의 모양대로 만드셨나요?",
+      choices: ["천사", "하나님", "동물"], answer: 1,
+      why: "하나님은 사람을 하나님의 형상대로 만드셨어요.", src: "창세기 1장 27절" },
+    { ref: "창세기 1장 1-31절", q: "하나님이 만드신 모든 것을 보시고 어떻게 말씀하셨나요?",
+      choices: ["조금 아쉽다", "심히 좋다", "다시 만들어야겠다"], answer: 1,
+      why: "하나님이 보시기에 모든 것이 아주 좋았어요. 나도 그 안에 있어요!", src: "창세기 1장 31절" }
+  ];
+
+  // 짝 맞추기: 같은 카드 두 장을 찾는 놀이. 카드마다 만드신 것과 그날을 함께 적음
+  var CREATION_PAIRS = [
+    { key: "light",  emoji: "✨",      word: "빛|첫째 날" },
+    { key: "sky",    emoji: "☁️🌊",    word: "하늘과 물|둘째 날" },
+    { key: "land",   emoji: "🌳🌷",    word: "땅과 나무|셋째 날" },
+    { key: "lights", emoji: "☀️🌙⭐",  word: "해·달·별|넷째 날" },
+    { key: "fishes", emoji: "🐟🐦",    word: "물고기와 새|다섯째 날" },
+    { key: "beasts", emoji: "🦁🧒",    word: "동물과 사람|여섯째 날" }
+  ];
+
+  // 과 이름 → 그 과의 서랍 자료 (커리큘럼의 과 이름과 같게). 하나님을 존경하자(honor)는 원래 자료라 여기에 없음
+  var LESSON_DATA = {
+    creation: {
+      lesson: CREATION_LESSON_HTML,
+      story: { titles: ["하나님이 세상을 만드셨어요"], arts: [CREATION_SCENE_HTML],
+               think: ["하나님은 무엇으로 세상을 만드셨나요?", "하나님이 만드신 것 중에 내가 가장 고마운 것은 무엇인가요?", "하나님은 나를 보시고 어떻게 생각하실까요?"] },
+      quiz: CREATION_QUIZ,
+      match: CREATION_PAIRS
+    }
+  };
 
   // ===================== 출석 (날짜 없이 온 횟수만 쌓임, 이 기기 브라우저에 저장) =====================
   // 우리 반 명단: 이름을 바꾸거나 더하려면 아래 목록만 고치면 됩니다.
@@ -3905,6 +4078,27 @@
     });
   });
   curRender();
+
+  // LESSON_DATA 의 과마다 서랍을 만들어 각 탭 안에 넣음 (처음 열 때 한 번). 성경 이야기·퀴즈·짝 맞추기는 그 서랍 안에서만 움직임
+  Object.keys(LESSON_DATA).forEach(function (id) {
+    if (!Object.prototype.hasOwnProperty.call(CUR_LESSONS, id)) return;
+    var d = LESSON_DATA[id], made = {};
+    function addPack(i, html, before) {
+      var p = panelEls[i], box = document.createElement("div");
+      box.className = "pack"; box.setAttribute("data-pack", id); box.hidden = true; box.innerHTML = html;
+      p.insertBefore(box, p.querySelector(before));
+      return box;
+    }
+    if (d.lesson) { addPack(0, d.lesson, ".lesson-plan"); made.lesson = true; }
+    if (d.story) {
+      var sb = addPack(1, storyHtml(d.story.titles, d.story.arts, thinkHtml(d.story.think, "-" + id)), ".pack-wait");
+      initStory(sb, d.story.titles, d.story.think); made.story = true;
+    }
+    if (d.quiz) { initQuiz(addPack(2, QUIZ_HTML, ".pack-wait"), d.quiz); made.quiz = true; }
+    if (d.match) { initMatch(addPack(3, MATCH_HTML, ".pack-wait"), d.match); made.match = true; }
+    LESSON_PACKS[id] = made;
+  });
+
   var nowBar = document.getElementById("now-lesson"), nowText = nowBar.querySelector(".nl-text");
   document.getElementById("now-lesson-btn").addEventListener("click", function () { openHome(false); });
   curLesson = curLoadLesson();
